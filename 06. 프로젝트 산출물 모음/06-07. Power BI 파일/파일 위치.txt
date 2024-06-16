@@ -1,0 +1,5 @@
+Philip Morris International\MCB\04. 프로젝트 개발\04-03. SSRS to Power BI\04-03-03. Pbix File
+
+
+파일을 하나로 관리하기 위해서 산출물모음에는 복사해두지 않고
+상기의 path에서만 관리
