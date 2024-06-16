@@ -1,0 +1,2259 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner" xmlns:cl="http://schemas.microsoft.com/sqlserver/reporting/2010/01/componentdefinition" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2010/01/reportdefinition">
+  <AutoRefresh>0</AutoRefresh>
+  <DataSources>
+    <DataSource Name="SMART06">
+      <DataSourceReference>PMIKRSELSQL06</DataSourceReference>
+      <rd:SecurityType>None</rd:SecurityType>
+      <rd:DataSourceID>50452341-5d23-46af-b2e4-4e8603aa194e</rd:DataSourceID>
+    </DataSource>
+    <DataSource Name="ISMS">
+      <DataSourceReference>iSMS Production DB</DataSourceReference>
+      <rd:SecurityType>None</rd:SecurityType>
+      <rd:DataSourceID>42a466fa-2d1f-45f5-892d-c3fde639e44f</rd:DataSourceID>
+    </DataSource>
+  </DataSources>
+  <DataSets>
+    <DataSet Name="USERAUTH">
+      <Query>
+        <DataSourceName>ISMS</DataSourceName>
+        <QueryParameters>
+          <QueryParameter Name="@useraccount">
+            <Value>=Parameters!useraccount.Value</Value>
+          </QueryParameter>
+        </QueryParameters>
+        <CommandText>SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED
+
+--'KAADMIN', 'KASUP','MDADMIN','MDSUP',,'FSADMIN','FSBOM','FSWK'
+
+if (convert(time, dbo.getlocaldatetime()) not between '08:00:00' and '18:00:00')
+begin
+
+select N'8-18시에 조회해주세요' as BROFFICE
+
+end else begin
+
+if ((select top 1 rtrim(jobfunctioncode) 
+	from useraccount
+	join employee on employee_useraccountid = useraccountid
+	join position on position_employeeid = employeeid
+	join jobfunction on position_jobfunctionid = jobfunctionid
+	where UserAccountCode = rtrim(ltrim(@useraccount))) in ('ASM'))
+
+
+begin
+
+select distinct c.GeoTreeAreaDescription as BROFFICE
+	from geotreearea a
+	join geotreearea b on a.geotreearea_geotreeareaid = b.geotreeareaid
+	join geotreearea c on b.geotreearea_geotreeareaid = c.geotreeareaid
+	join geotree on a.geotreearea_geotreeid = geotreeid and geotreecode in ('MERCHGEOTREE')
+	join geotreelevel on a.geotreearea_geotreelevelid = geotreelevelid
+	where geotreeleveldepth = 5
+	and c.geotreeareacode in (select right(rtrim(b.geotreeareacode), 2)
+	from useraccount
+	join employee on employee_useraccountid = useraccountid
+	join position on position_employeeid = employeeid
+	join jobfunction on position_jobfunctionid = jobfunctionid
+	left join positiongeotreearea on positiongeotreearea_positionid = positionid
+	join geotreearea a on positiongeotreearea_geotreeareaid = geotreeareaid
+	join geotreearea b on b.geotreearea_geotreeareaid = a.geotreeareaid
+	join GeoTree on b.GeoTreeArea_geotreeid = GeoTreeId
+	where UserAccountCode = rtrim(ltrim(@useraccount))
+	and geotreecode = 'RPTTREE')
+	and left(c.geotreeareacode,2) NOT IN ('PX','KA','PM')
+	order by BROFFICE
+
+end
+
+else if ((select top 1 rtrim(jobfunctioncode) 
+	from useraccount
+	join employee on employee_useraccountid = useraccountid
+	join position on position_employeeid = employeeid
+	join jobfunction on position_jobfunctionid = jobfunctionid
+	where UserAccountCode = rtrim(ltrim(@useraccount))) in ('KAADMIN', 'KASUP','MDADMIN','FSADMIN','FSWK','FSSUP'))
+
+
+begin
+
+select distinct c.GeoTreeAreaDescription as BROFFICE
+	from geotreearea a
+	join geotreearea b on a.geotreearea_geotreeareaid = b.geotreeareaid
+	join geotreearea c on b.geotreearea_geotreeareaid = c.geotreeareaid
+	join geotree on a.geotreearea_geotreeid = geotreeid and geotreecode in ('MERCHGEOTREE')
+	join geotreelevel on a.geotreearea_geotreelevelid = geotreelevelid
+	where geotreeleveldepth = 5
+	and c.geotreeareacode in (select right(rtrim(PositionCode),2)
+	from useraccount
+	join employee on employee_useraccountid = useraccountid
+	join position on position_employeeid = employeeid
+	where UserAccountCode = rtrim(ltrim(@useraccount)))
+	and left(c.geotreeareacode,2) NOT IN ('PX','KA','PM')
+	order by BROFFICE
+
+end
+
+
+else if ((select top 1 rtrim(jobfunctioncode) 
+	from useraccount
+	join employee on employee_useraccountid = useraccountid
+	join position on position_employeeid = employeeid
+	join jobfunction on position_jobfunctionid = jobfunctionid
+	where UserAccountCode = rtrim(@useraccount)) in ('KAREP','MDREP','MERCHANDISER','FSREP'))
+begin
+
+
+select distinct c.GeoTreeAreaDescription as BROFFICE
+	from geotreearea a
+	join geotreearea b on a.geotreearea_geotreeareaid = b.geotreeareaid
+	join geotreearea c on b.geotreearea_geotreeareaid = c.geotreeareaid
+	join geotree on a.geotreearea_geotreeid = geotreeid and geotreecode in ('MERCHGEOTREE')
+	join geotreelevel on a.geotreearea_geotreelevelid = geotreelevelid
+	where geotreeleveldepth = 5
+	and a.geotreeareacode in (select right(rtrim(positioncode),4)
+	from useraccount
+	join employee on employee_useraccountid = useraccountid
+	join position on position_employeeid = employeeid
+	join jobfunction on position_jobfunctionid = jobfunctionid
+	where UserAccountCode = rtrim(ltrim(@useraccount)))
+	and left(c.geotreeareacode,2) NOT IN ('PX','KA','PM')
+	order by BROFFICE
+
+end
+
+else if ((select top 1 rtrim(jobfunctioncode) 
+	from useraccount
+	join employee on employee_useraccountid = useraccountid
+	join position on position_employeeid = employeeid
+	join jobfunction on position_jobfunctionid = jobfunctionid
+	where UserAccountCode = rtrim(@useraccount)) in ('PMHQ','SI','TM','MDSUP','FSBOM', 'EZDHQ','MTADMIN'))
+begin
+
+select BROFFICE from
+(select 'ALL' as BROFFICE
+union all
+select a.GeoTreeAreaDescription as BROFFICE
+	from geotreearea a
+	join geotreelevel on a.geotreearea_geotreelevelid = geotreelevelid
+	join geotree on a.geotreearea_geotreeid = geotreeid and geotreecode in ('MERCHGEOTREE')
+	where geotreeleveldepth = 3
+	and left(a.geotreeareacode,2) NOT IN ('PX','KA','PM')) a
+	order by case when BROFFICE = 'ALL' then '0' else case when BROFFICE = 'MD ALL' then '0.5' else case when left(BROFFICE,2) in ('yo','ha','sa') then '1' else BROFFICE end end end
+
+end
+else
+begin
+
+select 'NONE' as BROFFICE
+
+end end</CommandText>
+        <rd:UseGenericDesigner>true</rd:UseGenericDesigner>
+      </Query>
+      <Fields>
+        <Field Name="BROFFICE">
+          <DataField>BROFFICE</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+    <DataSet Name="MD_OLT_POSM">
+      <Query>
+        <DataSourceName>ISMS</DataSourceName>
+        <QueryParameters>
+          <QueryParameter Name="@USERAUTH">
+            <Value>=Parameters!USERAUTH.Value</Value>
+          </QueryParameter>
+          <QueryParameter Name="@POSMTYPE">
+            <Value>=Parameters!POSMTYPE.Value</Value>
+          </QueryParameter>
+          <QueryParameter Name="@DATE">
+            <Value>=Parameters!DATE.Value</Value>
+          </QueryParameter>
+          <QueryParameter Name="@ZNECODE">
+            <Value>=Parameters!ZNECODE.Value</Value>
+          </QueryParameter>
+          <QueryParameter Name="@CUSTOMERTYPECODE">
+            <Value>=Parameters!CUSTOMERTYPECODE.Value</Value>
+          </QueryParameter>
+          <QueryParameter Name="@OLT_CODE">
+            <Value>=Parameters!OLT_CODE.Value</Value>
+          </QueryParameter>
+        </QueryParameters>
+        <CommandText>--//20180802HSDoh : POSMLog 유지수량은 아이패드 기준으로 변경.
+--//개발 참조용
+--DECLARE @USERAUTH VARCHAR(20), @ZNECODE VARCHAR(20), @POSMTYPE VARCHAR(20), @CUSTOMERTYPECODE VARCHAR(20),  @OLT_CODE VARCHAR(20), @DATE DATE
+--SELECT @USERAUTH='31-강남', @ZNECODE='3102 - 이범석', @POSMTYPE='PPOSM', @CUSTOMERTYPECODE='00',  @OLT_CODE='', @DATE='2018-08-06'
+--//
+
+SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED
+
+DECLARE @BRCODE VARCHAR(2) 
+DECLARE @ZNCODE VARCHAR(4) 
+DECLARE @CUSTOMERTYPEC VARCHAR(2) 
+DECLARE @TYPE VARCHAR(5) = @POSMTYPE
+DECLARE @EDATE VARCHAR(8) = CONVERT(VARCHAR(8), @DATE, 112)
+
+SET @BRCODE = LEFT(@USERAUTH,2)
+
+IF @ZNECODE = 'ALL'
+BEGIN
+SET @ZNCODE = ''
+END ELSE BEGIN
+SET @ZNCODE = LEFT(@ZNECODE, 4) END
+SET @CUSTOMERTYPEC = LEFT(@CUSTOMERTYPECODE, 2)
+
+if (convert(time, dbo.getlocaldatetime()) not between '08:00:00' and '18:00:00')
+begin
+
+select '' AS [MD지점]
+	, '' AS [소매점코드]
+	, '' AS [소매점명]
+	, '' AS [MD존코드]
+	, '' AS [FS존코드]
+	, '' AS [산업등급]
+	, '' AS [상권]
+	, '' as [PM등급]
+	,'' as [소매점유형]
+	,'' as [체인정보]
+	,'' as [폐업여부]
+	,'' as [POSM코드]
+	,'' AS [POSM명]
+	,'' AS [Priority]
+	,'' as [수량]
+	,'' AS [POSM종류]
+
+end else begin
+
+IF(@ZNCODE  = '0000')
+BEGIN
+SET @ZNCODE  = ''
+END
+
+IF (@TYPE = 'ALL')
+BEGIN
+SET @TYPE = ''
+END
+
+IF(@CUSTOMERTYPEC = '00')
+BEGIN
+
+IF @BRCODE = 'AL'
+BEGIN;
+
+-- All Branch Office
+-- All Customer Type
+With Customers as
+(select customerid, CustomerTypeCode, customerentitytextattributetext, CustomerCode,customername
+, rtrim(A.geotreeareacode) as geotreeareacode
+, rtrim(C.geotreeareacode) as BRCODE, ksegmentcode, rtrim(industryclassificationlevelcode) as industryclassificationlevelcode
+,RTRIM(InternalClassificationLevelCode) as [PM등급]
+,case when customerstatus = 'A' then N'영업' else N'폐업' end as [폐업여부]
+	from customer
+	left join InternalClassificationLevel on Customer_InternalClassificationLevelId = InternalClassificationLevelId
+	join CustomerType on Customer_CustomerTypeId = CustomerTypeId
+	join customergeotreearea on customergeotreearea_customerid = customerid
+	join geotreearea A on CustomerGeoTreeArea_GeoTreeAreaId = GeoTreeAreaId
+	join geotreearea B on A.GeoTreeArea_GeoTreeAreaId = B.GeoTreeAreaId
+	join GeoTreeArea C on B.GeoTreeArea_GeoTreeAreaId = C.GeoTreeAreaId
+	join geotree on a.GeoTreeArea_GeoTreeId = GeoTreeId and geotreecode = 'MERCHGEOTREE'
+	left join ksegment on customer_ksegmentid = ksegmentid
+	left join industryclassificationlevel on customer_industryclassificationlevelid = industryclassificationlevelid
+	left join (select CustomerEntitytextAttribute_customerid, CustomerEntityTextAttributeText
+	from CustomerEntitytextAttribute 
+	join EntityAttribute on CustomerEntityTextAttribute_EntityAttributeId = EntityAttributeId
+	where EntityAttributeCode = 'KACHAIN') as CUA on CUA.CustomerEntityTextAttribute_CustomerId = CustomerId
+	left join (select CustomerEntityListAttribute_CustomerId, EntityListAttributeValueCode
+	from CustomerEntityListAttribute
+	join EntityListAttributeValue on CustomerEntityListAttribute_EntityListAttributeValueId = EntityListAttributeValueId
+	join EntityAttribute on EntityListAttributeValue_EntityAttributeId = EntityAttributeId
+	where EntityAttributeCode = 'NMGMDREASON') as CUL on CUL.CustomerEntityListAttribute_CustomerId = CustomerId
+	where customercode like CONVERT(varchar(7),@OLT_CODE) + '%'
+	and CustomerStatus = 'A'
+	and len(coalesce(EntityListAttributeValueCode,'')) = 0
+	and RIGHT(rtrim(a.geotreeareacode),2) &lt;&gt; '99'),
+FSCode as
+(select rtrim(g.geotreeareacode) as FSCODE, d.customercode
+	from Customer d
+	join customergeotreearea on customergeotreearea_customerid = customerid
+	join geotreearea g on CustomerGeoTreeArea_GeoTreeAreaId = GeoTreeAreaId
+	join geotree on GeoTreeArea_GeoTreeId = GeoTreeId and GeoTreeCode = 'SALESGEOTREE'
+	join Customers e on d.CustomerId = e.CustomerId)
+
+select c1.BRCODE as [MD지점]
+	,c1.customercode as [소매점코드]
+	, c1.customername as [소매점명]
+	, c1.geotreeareacode as [MD존코드]
+	, fs.FSCODE AS [FS존코드]
+	, rtrim(c1.industryclassificationlevelcode) as [산업등급]
+	, rtrim(c1.KSegmentCode) as [상권]
+	, [PM등급]
+	,c1.CustomerEntityTextAttributeText as [체인정보]
+	,rtrim(c1.CustomerTypeCode) as [소매점유형]
+	,c1.[폐업여부]
+	,rtrim(productcode) as [POSM코드]
+	,productdescription AS [POSM명]
+	,ISNULL(MerchandisingLocationTypecode,'') [Priority]
+	,sum(POSMLogQuantity) as [수량]
+	,CASE WHEN PRODUCT_ProductLineId = '0A1961F9-CF82-4785-8E8E-13340D8C1254' THEN 'PP' ELSE 'TP' END AS [POSM종류]
+from Customers c1
+		left join POSMLog on POSMLog_customerid = c1.customerid
+		left join FSCode fs on fs.customercode = c1.customercode
+		join Productconversionrule on posmlog_productconversionruleid = productconversionruleid
+		join product on Productconversionrule_productid = productid
+		join ProductLine on Product_ProductLineId = ProductLineId
+		join internalorder on posmlog_internalorderid = internalorderid
+		left join position on InternalOrderCreator_PositionId = positionid
+		INNER JOIN InternalOrderType WITH(NOLOCK)		ON InternalOrderTypeId = InternalOrder_InternalOrderTypeId
+		LEFT JOIN MerchandisingLocationType WITH(NOLOCK)ON MerchandisingLocationTypeId = POSMLog_MerchandisingLocationTypeId
+where InternalOrderStatus in ('E')
+		and RTRIM(productlinecode) LIKE @TYPE + '%'
+		--and CONVERT(VARCHAR(8),POSMLogActionDate,112) &lt;= @EDATE
+		and CONVERT(VARCHAR(8),InternalOrderModDate,112) &lt;= @EDATE
+		
+		AND InternalOrderTypeIsForPOSMInstallation = 1
+		AND InternalOrderCode NOT IN (
+									--//철거 SEQ
+									SELECT POSMLogTargetSequesnce
+									FROM (
+										SELECT POSMLogTargetSequesnce
+										FROM POSMLog WITH(NOLOCK)
+											INNER JOIN ProductConversionRule WITH(NOLOCK)	ON POSMLog_ProductConversionRuleId = ProductConversionRuleid
+											INNER JOIN product p WITH(NOLOCK)				ON ProductConversionRule_productid = p.productid
+											INNER JOIN InternalOrder WITH(NOLOCK)			ON InternalOrderId = POSMLog_InternalOrderId
+											INNER JOIN InternalOrderType WITH(NOLOCK)		ON InternalOrderTypeId = InternalOrder_InternalOrderTypeId
+										WHERE InternalOrderStatus = 'E' and InternalOrderTypeIsForPOSMRemoval = 1
+											AND CONVERT(VARCHAR(8),InternalOrderModDate,112) &lt;= @EDATE
+										) A
+									WHERE POSMLogTargetSequesnce = InternalOrderCode
+									)
+group by CASE WHEN PRODUCT_ProductLineId = '0A1961F9-CF82-4785-8E8E-13340D8C1254' THEN 'PP' ELSE 'TP' end 
+	,c1.customercode
+	,c1.customername
+	,c1.geotreeareacode
+	,c1.[폐업여부]
+	,[PM등급]
+	, fs.customercode
+	,c1.CustomerEntityTextAttributeText
+	,c1.CustomerTypeCode
+	, fs.FSCODE 
+	,productcode, productdescription,ISNULL(MerchandisingLocationTypecode,'')
+	,c1.BRCODE
+	, c1.industryclassificationlevelcode
+	, c1.ksegmentcode
+	having sum(POSMLogQuantity) &gt; 0
+
+END
+ELSE
+BEGIN;
+
+-- Filter Branch Office
+-- All Customer Type
+With Customers as
+(select customerid, CustomerCode, CustomerEntityTextAttributeText, customertypecode
+,customername, A.geotreeareacode, C.geotreeareacode as BRCODE, ksegmentcode, rtrim(industryclassificationlevelcode) as industryclassificationlevelcode
+,RTRIM(InternalClassificationLevelcode) as [PM등급]
+,case when customerstatus = 'A' then N'영업' else N'폐업' end as [폐업여부]
+	from customer
+	left join InternalClassificationLevel on Customer_InternalClassificationLevelId = InternalClassificationLevelId
+	join CustomerType on Customer_CustomerTypeId = CustomerTypeId
+	join customergeotreearea on customergeotreearea_customerid = customerid
+	join geotreearea A on CustomerGeoTreeArea_GeoTreeAreaId = GeoTreeAreaId
+	join geotreearea B on A.GeoTreeArea_GeoTreeAreaId = B.GeoTreeAreaId
+	join GeoTreeArea C on B.GeoTreeArea_GeoTreeAreaId = C.GeoTreeAreaId
+	join geotree on a.GeoTreeArea_GeoTreeId = GeoTreeId	and geotreecode = 'MERCHGEOTREE'
+	left join ksegment on customer_ksegmentid = ksegmentid
+	left join industryclassificationlevel on customer_industryclassificationlevelid = industryclassificationlevelid
+	left join (select CustomerEntitytextAttribute_customerid, CustomerEntityTextAttributeText
+	from CustomerEntitytextAttribute 
+	join EntityAttribute on CustomerEntityTextAttribute_EntityAttributeId = EntityAttributeId
+	where EntityAttributeCode = 'KACHAIN') as CUA on CUA.CustomerEntityTextAttribute_CustomerId = CustomerId
+	left join (select CustomerEntityListAttribute_CustomerId, EntityListAttributeValueCode
+	from CustomerEntityListAttribute
+	join EntityListAttributeValue on CustomerEntityListAttribute_EntityListAttributeValueId = EntityListAttributeValueId
+	join EntityAttribute on EntityListAttributeValue_EntityAttributeId = EntityAttributeId
+	where EntityAttributeCode = 'NMGMDREASON') as CUL on CUL.CustomerEntityListAttribute_CustomerId = CustomerId
+	where left(C.GeoTreeAreaCode,2) like @BRCODE + '%'
+	and a.GeoTreeAreaCode like @ZNCODE + '%'
+	and len(coalesce(EntityListAttributeValueCode,'')) = 0
+	and customercode like CONVERT(varchar(7),@OLT_CODE) + '%'
+	and CustomerStatus = 'A'
+	and RIGHT(rtrim(a.geotreeareacode),2) &lt;&gt; '99'
+	),
+FSCode as
+(select g.geotreeareacode as FSCODE, d.customercode
+	from Customer d
+	join customergeotreearea on customergeotreearea_customerid = customerid
+	join geotreearea g on CustomerGeoTreeArea_GeoTreeAreaId = GeoTreeAreaId
+	join geotree on GeoTreeArea_GeoTreeId = GeoTreeId and GeoTreeCode = 'SALESGEOTREE'
+	join Customers e on d.CustomerId = e.CustomerId)
+
+select rtrim(c1.BRCODE) as [MD지점]
+	,c1.customercode as [소매점코드]
+	, c1.customername as [소매점명]
+	, rtrim(c1.geotreeareacode) as [MD존코드]
+	, rtrim(fs.FSCODE) AS [FS존코드]
+	, RTRIM(c1.industryclassificationlevelcode) AS [산업등급]
+	, RTRIM(c1.ksegmentcode) AS [상권]
+	, [PM등급]
+	,c1.CustomerEntityTextAttributeText as [체인정보]
+	,rtrim(c1.CustomerTypeCode) as [소매점유형]
+	,c1.[폐업여부]
+	,rtrim(productcode) as [POSM코드]
+	,productdescription AS [POSM명]
+	,ISNULL(MerchandisingLocationTypecode,'') [Priority]
+	,sum(POSMLogQuantity) as [수량]
+	,CASE WHEN PRODUCT_ProductLineId = '0A1961F9-CF82-4785-8E8E-13340D8C1254' THEN 'PP' ELSE 'TP' END AS [POSM종류]
+from Customers c1
+		left join POSMLog on POSMLog_customerid = c1.customerid
+		left join FSCode fs on fs.customercode = c1.customercode
+		join Productconversionrule on posmlog_productconversionruleid = productconversionruleid
+		join product on Productconversionrule_productid = productid
+		join ProductLine on Product_ProductLineId = ProductLineId
+		join internalorder on posmlog_internalorderid = internalorderid
+		left join position on InternalOrderCreator_PositionId = positionid
+		INNER JOIN InternalOrderType WITH(NOLOCK)		ON InternalOrderTypeId = InternalOrder_InternalOrderTypeId
+		LEFT JOIN MerchandisingLocationType WITH(NOLOCK)ON MerchandisingLocationTypeId = POSMLog_MerchandisingLocationTypeId
+where InternalOrderStatus in ('E')
+		and RTRIM(productlinecode) LIKE @TYPE + '%'
+		--and CONVERT(VARCHAR(8),POSMLogActionDate,112) &lt;= @EDATE
+		and CONVERT(VARCHAR(8),InternalOrderModDate,112) &lt;= @EDATE
+		AND InternalOrderTypeIsForPOSMInstallation = 1
+		AND InternalOrderCode NOT IN (
+									--//철거 SEQ
+									SELECT POSMLogTargetSequesnce
+									FROM (
+										SELECT POSMLogTargetSequesnce
+										FROM POSMLog WITH(NOLOCK)
+											INNER JOIN ProductConversionRule WITH(NOLOCK)	ON POSMLog_ProductConversionRuleId = ProductConversionRuleid
+											INNER JOIN product p WITH(NOLOCK)				ON ProductConversionRule_productid = p.productid
+											INNER JOIN InternalOrder WITH(NOLOCK)			ON InternalOrderId = POSMLog_InternalOrderId
+											INNER JOIN InternalOrderType WITH(NOLOCK)		ON InternalOrderTypeId = InternalOrder_InternalOrderTypeId
+										WHERE InternalOrderStatus = 'E' and InternalOrderTypeIsForPOSMRemoval = 1
+											AND CONVERT(VARCHAR(8),InternalOrderModDate,112) &lt;= @EDATE
+										) A
+									WHERE POSMLogTargetSequesnce = InternalOrderCode
+									)
+group by CASE WHEN PRODUCT_ProductLineId = '0A1961F9-CF82-4785-8E8E-13340D8C1254' THEN 'PP' ELSE 'TP' end 
+	,c1.customercode
+	,c1.customername
+	,c1.geotreeareacode
+	,c1.[폐업여부]
+	,c1.CustomerTypeCode
+	,[PM등급]
+	,c1.CustomerEntityTextAttributeText
+	, fs.customercode
+	, fs.FSCODE 
+	,productcode, productdescription,ISNULL(MerchandisingLocationTypecode,'')
+	,c1.BRCODE
+	, c1.industryclassificationlevelcode
+	, c1.ksegmentcode
+	having sum(POSMLogQuantity) &gt; 0
+	
+END
+
+END
+ELSE
+BEGIN
+
+IF @BRCODE = 'AL'
+BEGIN;
+
+-- All Branch Office
+-- Filter Customer Type
+With Customers as
+(select customerid
+	, customertypecode
+	,customerentitytextattributetext
+	,CustomerCode
+	,customername
+	, A.geotreeareacode
+	, C.geotreeareacode as BRCODE
+	, ksegmentcode
+	, rtrim(industryclassificationlevelcode) as industryclassificationlevelcode
+	, RTRIM(InternalClassificationLevelCode) as [PM등급]
+	,case when customerstatus = 'A' then N'영업' else N'폐업' end as [폐업여부]
+	from customer
+	left join InternalClassificationLevel on Customer_InternalClassificationLevelId = InternalClassificationLevelId
+	join CustomerType on Customer_CustomerTypeId = CustomerTypeId
+	join customergeotreearea on customergeotreearea_customerid = customerid
+	join geotreearea A on CustomerGeoTreeArea_GeoTreeAreaId = GeoTreeAreaId
+	join geotreearea B on A.GeoTreeArea_GeoTreeAreaId = B.GeoTreeAreaId
+	join GeoTreeArea C on B.GeoTreeArea_GeoTreeAreaId = C.GeoTreeAreaId
+	join geotree on a.GeoTreeArea_GeoTreeId = GeoTreeId and geotreecode = 'MERCHGEOTREE'
+	left join ksegment on customer_ksegmentid = ksegmentid
+	left join industryclassificationlevel on customer_industryclassificationlevelid = industryclassificationlevelid
+	left join (select CustomerEntitytextAttribute_customerid, CustomerEntityTextAttributeText
+	from CustomerEntitytextAttribute 
+	join EntityAttribute on CustomerEntityTextAttribute_EntityAttributeId = EntityAttributeId
+	where EntityAttributeCode = 'KACHAIN') as CUA on CUA.CustomerEntityTextAttribute_CustomerId = CustomerId
+	left join (select CustomerEntityListAttribute_CustomerId, EntityListAttributeValueCode
+	from CustomerEntityListAttribute
+	join EntityListAttributeValue on CustomerEntityListAttribute_EntityListAttributeValueId = EntityListAttributeValueId
+	join EntityAttribute on EntityListAttributeValue_EntityAttributeId = EntityAttributeId
+	where EntityAttributeCode = 'NMGMDREASON') as CUL on CUL.CustomerEntityListAttribute_CustomerId = CustomerId
+	where CustomerTypeCode = @CUSTOMERTYPEC
+	and CustomerStatus = 'A'
+	and LEN(coalesce(entitylistattributevaluecode,'')) = 0
+	and customercode like CONVERT(varchar(7),@OLT_CODE) + '%'
+	and RIGHT(rtrim(a.geotreeareacode),2) &lt;&gt; '99'),
+FSCode as
+(select g.geotreeareacode as FSCODE
+	, d.customercode
+	from Customer d
+	join customergeotreearea on customergeotreearea_customerid = customerid
+	join geotreearea g on CustomerGeoTreeArea_GeoTreeAreaId = GeoTreeAreaId
+	join geotree on GeoTreeArea_GeoTreeId = GeoTreeId and GeoTreeCode = 'SALESGEOTREE'
+	join Customers e on d.CustomerId = e.CustomerId)
+
+select rtrim(c1.BRCODE) AS [MD지점]
+	,c1.customercode AS [소매점코드]
+	, c1.customername AS [소매점명]
+	, rtrim(c1.geotreeareacode) AS [MD존코드]
+	, rtrim(fs.FSCODE) AS [FS존코드]
+	, RTRIM(c1.industryclassificationlevelcode) AS [산업등급]
+	, RTRIM(c1.ksegmentcode) AS [상권]
+	, [PM등급]
+	,rtrim(c1.CustomerTypeCode) as [소매점유형]
+	,c1.CustomerEntityTextAttributeText as [체인정보]
+	,c1.[폐업여부]
+	,rtrim(productcode) as [POSM코드]
+	,productdescription AS [POSM명]
+	,ISNULL(MerchandisingLocationTypecode,'') [Priority]
+	,sum(POSMLogQuantity) as [수량]
+	,CASE WHEN PRODUCT_ProductLineId = '0A1961F9-CF82-4785-8E8E-13340D8C1254' THEN 'PP' ELSE 'TP' END AS [POSM종류]
+from Customers c1
+		left join POSMLog on POSMLog_customerid = c1.customerid
+		left join FSCode fs on fs.customercode = c1.customercode
+		join Productconversionrule on posmlog_productconversionruleid = productconversionruleid
+		join product on Productconversionrule_productid = productid
+		join ProductLine on Product_ProductLineId = ProductLineId
+		join internalorder on posmlog_internalorderid = internalorderid
+		left join position on InternalOrderCreator_PositionId = positionid
+		INNER JOIN InternalOrderType WITH(NOLOCK)		ON InternalOrderTypeId = InternalOrder_InternalOrderTypeId
+		LEFT JOIN MerchandisingLocationType WITH(NOLOCK)ON MerchandisingLocationTypeId = POSMLog_MerchandisingLocationTypeId
+where InternalOrderStatus in ('E')
+		and RTRIM(productlinecode) LIKE @TYPE + '%'
+		--and CONVERT(VARCHAR(8),POSMLogActionDate,112) &lt;= @EDATE
+		and CONVERT(VARCHAR(8),InternalOrderModDate,112) &lt;= @EDATE
+		AND InternalOrderTypeIsForPOSMInstallation = 1
+		AND InternalOrderCode NOT IN (
+									--//철거 SEQ
+									SELECT POSMLogTargetSequesnce
+									FROM (
+										SELECT POSMLogTargetSequesnce
+										FROM POSMLog WITH(NOLOCK)
+											INNER JOIN ProductConversionRule WITH(NOLOCK)	ON POSMLog_ProductConversionRuleId = ProductConversionRuleid
+											INNER JOIN product p WITH(NOLOCK)				ON ProductConversionRule_productid = p.productid
+											INNER JOIN InternalOrder WITH(NOLOCK)			ON InternalOrderId = POSMLog_InternalOrderId
+											INNER JOIN InternalOrderType WITH(NOLOCK)		ON InternalOrderTypeId = InternalOrder_InternalOrderTypeId
+										WHERE InternalOrderStatus = 'E' and InternalOrderTypeIsForPOSMRemoval = 1
+											AND CONVERT(VARCHAR(8),InternalOrderModDate,112) &lt;= @EDATE
+										) A
+									WHERE POSMLogTargetSequesnce = InternalOrderCode
+									)
+group by CASE WHEN PRODUCT_ProductLineId = '0A1961F9-CF82-4785-8E8E-13340D8C1254' THEN 'PP' ELSE 'TP' end 
+	,c1.customercode
+	,c1.customername
+	,c1.geotreeareacode
+	,[PM등급]
+	,c1.[폐업여부]
+	,c1.CustomerTypeCode
+	,c1.CustomerEntityTextAttributeText
+	, fs.customercode
+	, fs.FSCODE 
+	,productcode, productdescription,ISNULL(MerchandisingLocationTypecode,'')
+	,c1.BRCODE
+	, c1.industryclassificationlevelcode
+	, c1.ksegmentcode
+	having sum(POSMLogQuantity) &gt; 0
+
+END
+ELSE
+BEGIN;
+
+-- Filter Branch Office
+-- Filter Customer Type
+With Customers as
+(select customerid
+	,customertypecode
+	,customerentitytextattributetext
+	,CustomerCode
+	,customername
+	, A.geotreeareacode
+	, C.geotreeareacode as BRCODE
+	, ksegmentcode
+	, rtrim(industryclassificationlevelcode) as industryclassificationlevelcode
+	,rtrim(InternalClassificationLevelCode) as [PM등급]
+	,case when customerstatus = 'A' then N'영업' else N'폐업' end as [폐업여부]
+	from customer
+	left join InternalClassificationLevel on Customer_InternalClassificationLevelId = InternalClassificationLevelId
+	
+	join CustomerType on Customer_CustomerTypeId = CustomerTypeId
+	join customergeotreearea on customergeotreearea_customerid = customerid
+	join geotreearea A on CustomerGeoTreeArea_GeoTreeAreaId = GeoTreeAreaId
+	join geotreearea B on A.GeoTreeArea_GeoTreeAreaId = B.GeoTreeAreaId
+	join GeoTreeArea C on B.GeoTreeArea_GeoTreeAreaId = C.GeoTreeAreaId
+	join geotree on a.GeoTreeArea_GeoTreeId = GeoTreeId	and geotreecode = 'MERCHGEOTREE'
+	left join ksegment on customer_ksegmentid = ksegmentid
+	left join industryclassificationlevel on customer_industryclassificationlevelid = industryclassificationlevelid
+	left join (select CustomerEntitytextAttribute_customerid, CustomerEntityTextAttributeText
+	from CustomerEntitytextAttribute 
+	join EntityAttribute on CustomerEntityTextAttribute_EntityAttributeId = EntityAttributeId
+	where EntityAttributeCode = 'KACHAIN') as CUA on CUA.CustomerEntityTextAttribute_CustomerId = CustomerId
+	left join (select CustomerEntityListAttribute_CustomerId, EntityListAttributeValueCode
+	from CustomerEntityListAttribute
+	join EntityListAttributeValue on CustomerEntityListAttribute_EntityListAttributeValueId = EntityListAttributeValueId
+	join EntityAttribute on EntityListAttributeValue_EntityAttributeId = EntityAttributeId
+	where EntityAttributeCode = 'NMGMDREASON') as CUL on CUL.CustomerEntityListAttribute_CustomerId = CustomerId
+	where left(C.GeoTreeAreaCode,2) like @BRCODE + '%'
+	and CustomerTypeCode = @CUSTOMERTYPEC
+	and a.GeoTreeAreaCode like @ZNCODE + '%'
+	and LEN(coalesce(entitylistattributevaluecode,'')) = 0
+	and CustomerStatus = 'A'
+	and customercode like CONVERT(varchar(7),@OLT_CODE) + '%'
+	and RIGHT(rtrim(a.geotreeareacode),2) &lt;&gt; '99'),
+FSCode as
+(select g.geotreeareacode as FSCODE
+	, d.customercode
+	from Customer d
+	join customergeotreearea on customergeotreearea_customerid = customerid
+	join geotreearea g on CustomerGeoTreeArea_GeoTreeAreaId = GeoTreeAreaId
+	join geotree on GeoTreeArea_GeoTreeId = GeoTreeId and GeoTreeCode = 'SALESGEOTREE'
+	join Customers e on d.CustomerId = e.CustomerId)
+
+select rtrim(c1.BRCODE) AS [MD지점]
+	, c1.customercode AS [소매점코드]
+	, c1.customername AS [소매점명]
+	, rtrim(c1.geotreeareacode) AS [MD존코드]
+	, rtrim(fs.FSCODE) AS [FS존코드]
+	, RTRIM(c1.industryclassificationlevelcode) AS [산업등급]
+	, RTRIM(c1.ksegmentcode) AS [상권]
+	, [PM등급]
+	,rtrim(c1.CustomerTypeCode) as [소매점유형]
+	,c1.CustomerEntityTextAttributeText as [체인정보]
+	,c1.[폐업여부]
+	,rtrim(productcode) as [POSM코드]
+	,productdescription AS [POSM명]
+	,ISNULL(MerchandisingLocationTypecode,'') [Priority]
+	,sum(POSMLogQuantity) as [수량]
+	,CASE WHEN PRODUCT_ProductLineId = '0A1961F9-CF82-4785-8E8E-13340D8C1254' THEN 'PP' ELSE 'TP' END AS [POSM종류]
+from Customers c1
+		left join POSMLog on POSMLog_customerid = c1.customerid
+		left join FSCode fs on fs.customercode = c1.customercode
+		join Productconversionrule on posmlog_productconversionruleid = productconversionruleid
+		join product on Productconversionrule_productid = productid
+		join ProductLine on Product_ProductLineId = ProductLineId
+		join internalorder on posmlog_internalorderid = internalorderid
+		left join position on InternalOrderCreator_PositionId = positionid
+		INNER JOIN InternalOrderType WITH(NOLOCK)		ON InternalOrderTypeId = InternalOrder_InternalOrderTypeId
+		LEFT JOIN MerchandisingLocationType WITH(NOLOCK)ON MerchandisingLocationTypeId = POSMLog_MerchandisingLocationTypeId
+where InternalOrderStatus in ('E')
+		and RTRIM(productlinecode) LIKE @TYPE + '%'
+		--and CONVERT(VARCHAR(8),POSMLogActionDate,112) &lt;= @EDATE
+		and CONVERT(VARCHAR(8),InternalOrderModDate,112) &lt;= @EDATE
+		AND InternalOrderTypeIsForPOSMInstallation = 1
+		AND InternalOrderCode NOT IN (
+									--//철거 SEQ
+									SELECT POSMLogTargetSequesnce
+									FROM (
+										SELECT POSMLogTargetSequesnce
+										FROM POSMLog WITH(NOLOCK)
+											INNER JOIN ProductConversionRule WITH(NOLOCK)	ON POSMLog_ProductConversionRuleId = ProductConversionRuleid
+											INNER JOIN product p WITH(NOLOCK)				ON ProductConversionRule_productid = p.productid
+											INNER JOIN InternalOrder WITH(NOLOCK)			ON InternalOrderId = POSMLog_InternalOrderId
+											INNER JOIN InternalOrderType WITH(NOLOCK)		ON InternalOrderTypeId = InternalOrder_InternalOrderTypeId
+										WHERE InternalOrderStatus = 'E' and InternalOrderTypeIsForPOSMRemoval = 1
+											AND CONVERT(VARCHAR(8),InternalOrderModDate,112) &lt;= @EDATE
+										) A
+									WHERE POSMLogTargetSequesnce = InternalOrderCode
+									)
+group by CASE WHEN PRODUCT_ProductLineId = '0A1961F9-CF82-4785-8E8E-13340D8C1254' THEN 'PP' ELSE 'TP' end 
+	,c1.customercode
+	,c1.customername
+	,c1.geotreeareacode
+	,c1.[폐업여부]
+	,[PM등급]
+	,c1.CustomerTypeCode
+	,c1.CustomerEntityTextAttributeText
+	, fs.customercode
+	, fs.FSCODE 
+	,productcode, productdescription,ISNULL(MerchandisingLocationTypecode,'')
+	,c1.BRCODE
+	, c1.industryclassificationlevelcode
+	, c1.ksegmentcode
+	having sum(POSMLogQuantity) &gt; 0
+	
+END
+END end</CommandText>
+        <rd:UseGenericDesigner>true</rd:UseGenericDesigner>
+      </Query>
+      <Fields>
+        <Field Name="MD지점">
+          <DataField>MD지점</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="소매점코드">
+          <DataField>소매점코드</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="소매점명">
+          <DataField>소매점명</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="MD존코드">
+          <DataField>MD존코드</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="FS존코드">
+          <DataField>FS존코드</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="산업등급">
+          <DataField>산업등급</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="상권">
+          <DataField>상권</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="체인정보">
+          <DataField>체인정보</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="PM등급">
+          <DataField>PM등급</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="폐업여부">
+          <DataField>폐업여부</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="POSM코드">
+          <DataField>POSM코드</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="소매점유형">
+          <DataField>소매점유형</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="POSM명">
+          <DataField>POSM명</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="POSM종류">
+          <DataField>POSM종류</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="Priority">
+          <DataField>Priority</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="수량">
+          <DataField>수량</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+    <DataSet Name="ZNECODE">
+      <Query>
+        <DataSourceName>ISMS</DataSourceName>
+        <QueryParameters>
+          <QueryParameter Name="@USERAUTH">
+            <Value>=Parameters!USERAUTH.Value</Value>
+          </QueryParameter>
+          <QueryParameter Name="@useraccount">
+            <Value>=Parameters!useraccount.Value</Value>
+          </QueryParameter>
+        </QueryParameters>
+        <CommandText>SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED
+
+declare @BR nvarchar(10) = left(@USERAUTH, 2)
+
+if (convert(time, dbo.getlocaldatetime()) not between '08:00:00' and '18:00:00')
+begin
+
+select '' as ZNE_CODE
+
+end
+else
+begin
+
+if @BR = 'AL'
+begin
+	set @BR = ''
+end
+
+if ((select top 1 rtrim(jobfunctioncode) 
+	from useraccount
+	join employee on employee_useraccountid = useraccountid
+	join position on position_employeeid = employeeid
+	join jobfunction on position_jobfunctionid = jobfunctionid
+	where UserAccountCode = rtrim(@useraccount)) in ('KAADMIN', 'KASUP','MDADMIN','MDSUP','ASM','FSADMIN','FSBOM','FSWK'))
+begin
+
+select ZNE_CODE 
+from
+(select N'ALL' as ZNE_CODE
+union all
+select rtrim(a.geotreeareacode) + ' - ' + EmployeeLastName as ZoneCode
+	from geotreearea a
+	join geotreearea b on a.geotreearea_geotreeareaid = b.geotreeareaid
+	join geotreearea c on b.geotreearea_geotreeareaid = c.geotreeareaid
+	join geotree on a.geotreearea_geotreeid = geotreeid and geotreecode in ('MERCHGEOTREE')
+	join geotreelevel on a.geotreearea_geotreelevelid = geotreelevelid
+	join positiongeotreearea on positiongeotreearea_geotreeareaid = a.geotreeareaid
+	join position on positiongeotreearea_positionid = positionid
+	join employee on position_employeeid = employeeid
+	where geotreeleveldepth = 5
+	and c.geotreeareacode like @BR +'%'
+	and RIGHT(rtrim(a.geotreeareacode),2) &lt;&gt; '99') a
+	order by case when ZNE_CODE = 'ALL' then N'0' else ZNE_CODE end
+
+end
+
+else if ((select top 1 rtrim(jobfunctioncode) 
+	from useraccount
+	join employee on employee_useraccountid = useraccountid
+	join position on position_employeeid = employeeid
+	join jobfunction on position_jobfunctionid = jobfunctionid
+	where UserAccountCode = rtrim(@useraccount)) in ('KAREP','MDREP','MERCHANDISER','FSREP'))
+begin
+
+select ZNE_CODE
+from
+(select N'ALL' as ZNE_CODE
+union all
+select rtrim(a.geotreeareacode) + ' - ' + EmployeeLastName as ZoneCode
+	from geotreearea a
+	join geotreearea b on a.geotreearea_geotreeareaid = b.geotreeareaid
+	join geotreearea c on b.geotreearea_geotreeareaid = c.geotreeareaid
+	join geotree on a.geotreearea_geotreeid = geotreeid and geotreecode in ('MERCHGEOTREE')
+	join geotreelevel on a.geotreearea_geotreelevelid = geotreelevelid
+	join positiongeotreearea on positiongeotreearea_geotreeareaid = a.geotreeareaid
+	join position on positiongeotreearea_positionid = positionid
+	join employee on position_employeeid = employeeid
+	where geotreeleveldepth = 5
+	and RIGHT(rtrim(a.geotreeareacode),2) &lt;&gt; '99'
+	and c.geotreeareacode like @BR +'%'
+	and a.geotreeareacode in (select right(rtrim(positioncode),4)
+	from useraccount
+	join employee on employee_useraccountid = useraccountid
+	join position on position_employeeid = employeeid
+	join jobfunction on position_jobfunctionid = jobfunctionid
+	where UserAccountCode = rtrim(@useraccount))) a
+	order by case when ZNE_CODE = 'ALL' then N'0' else ZNE_CODE end
+
+end
+else if ((select top 1 rtrim(jobfunctioncode) 
+	from useraccount
+	join employee on employee_useraccountid = useraccountid
+	join position on position_employeeid = employeeid
+	join jobfunction on position_jobfunctionid = jobfunctionid
+	where UserAccountCode = rtrim(@useraccount)) in ('PMHQ','SI','TM','EZDBIZ','EZDMIS','FSSUP','MTADMIN'))
+begin
+
+select ZNE_CODE
+from
+(select N'ALL' as ZNE_CODE
+union all
+select rtrim(a.geotreeareacode) + ' - ' + EmployeeLastName as ZoneCode
+	from geotreearea a
+	join geotreearea b on a.geotreearea_geotreeareaid = b.geotreeareaid
+	join geotreearea c on b.geotreearea_geotreeareaid = c.geotreeareaid
+	join geotreelevel on a.geotreearea_geotreelevelid = geotreelevelid
+	join geotree on a.geotreearea_geotreeid = geotreeid and geotreecode in ('MERCHGEOTREE')
+	join positiongeotreearea on positiongeotreearea_geotreeareaid = a.geotreeareaid
+	join position on positiongeotreearea_positionid = positionid
+	join employee on position_employeeid = employeeid
+	where geotreeleveldepth = 5
+	and c.geotreeareacode like @BR +'%'
+	and RIGHT(rtrim(a.geotreeareacode),2) &lt;&gt; '99') a
+	order by case when ZNE_CODE = 'ALL' then N'0' else ZNE_CODE end
+
+end
+else
+begin
+
+select N'NONE' as ZNE_CODE
+
+end
+end</CommandText>
+        <rd:UseGenericDesigner>true</rd:UseGenericDesigner>
+      </Query>
+      <Fields>
+        <Field Name="ZNE_CODE">
+          <DataField>ZNE_CODE</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+  </DataSets>
+  <ReportSections>
+    <ReportSection>
+      <Body>
+        <ReportItems>
+          <Tablix Name="Tablix1">
+            <TablixBody>
+              <TablixColumns>
+                <TablixColumn>
+                  <Width>1.24167in</Width>
+                </TablixColumn>
+                <TablixColumn>
+                  <Width>2.41667in</Width>
+                </TablixColumn>
+                <TablixColumn>
+                  <Width>1in</Width>
+                </TablixColumn>
+                <TablixColumn>
+                  <Width>1in</Width>
+                </TablixColumn>
+                <TablixColumn>
+                  <Width>1in</Width>
+                </TablixColumn>
+                <TablixColumn>
+                  <Width>1in</Width>
+                </TablixColumn>
+                <TablixColumn>
+                  <Width>1in</Width>
+                </TablixColumn>
+                <TablixColumn>
+                  <Width>1.475in</Width>
+                </TablixColumn>
+                <TablixColumn>
+                  <Width>1in</Width>
+                </TablixColumn>
+                <TablixColumn>
+                  <Width>1in</Width>
+                </TablixColumn>
+                <TablixColumn>
+                  <Width>1in</Width>
+                </TablixColumn>
+                <TablixColumn>
+                  <Width>1in</Width>
+                </TablixColumn>
+                <TablixColumn>
+                  <Width>1in</Width>
+                </TablixColumn>
+                <TablixColumn>
+                  <Width>1.16667in</Width>
+                </TablixColumn>
+                <TablixColumn>
+                  <Width>2.64167in</Width>
+                </TablixColumn>
+                <TablixColumn>
+                  <Width>1in</Width>
+                </TablixColumn>
+              </TablixColumns>
+              <TablixRows>
+                <TablixRow>
+                  <Height>0.25in</Height>
+                  <TablixCells>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox2">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>소매점코드</Value>
+                                  <Style>
+                                    <FontFamily>Tahoma</FontFamily>
+                                    <FontSize>11pt</FontSize>
+                                    <FontWeight>Bold</FontWeight>
+                                    <Color>White</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox2</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>#7292cc</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <BackgroundColor>#4c68a2</BackgroundColor>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                        <rd:Selected>true</rd:Selected>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox3">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>소매점명</Value>
+                                  <Style>
+                                    <FontFamily>Tahoma</FontFamily>
+                                    <FontSize>11pt</FontSize>
+                                    <FontWeight>Bold</FontWeight>
+                                    <Color>White</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox3</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>#7292cc</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <BackgroundColor>#4c68a2</BackgroundColor>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox5">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>MD지점</Value>
+                                  <Style>
+                                    <FontFamily>Tahoma</FontFamily>
+                                    <FontSize>11pt</FontSize>
+                                    <FontWeight>Bold</FontWeight>
+                                    <Color>White</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox5</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>#7292cc</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <BackgroundColor>#4c68a2</BackgroundColor>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox7">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>MD존코드</Value>
+                                  <Style>
+                                    <FontFamily>Tahoma</FontFamily>
+                                    <FontSize>11pt</FontSize>
+                                    <FontWeight>Bold</FontWeight>
+                                    <Color>White</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox7</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>#7292cc</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <BackgroundColor>#4c68a2</BackgroundColor>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox9">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>FS존코드</Value>
+                                  <Style>
+                                    <FontFamily>Tahoma</FontFamily>
+                                    <FontSize>11pt</FontSize>
+                                    <FontWeight>Bold</FontWeight>
+                                    <Color>White</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox9</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>#7292cc</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <BackgroundColor>#4c68a2</BackgroundColor>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox11">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>폐업여부</Value>
+                                  <Style>
+                                    <FontFamily>Tahoma</FontFamily>
+                                    <FontSize>11pt</FontSize>
+                                    <FontWeight>Bold</FontWeight>
+                                    <Color>White</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox11</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>#7292cc</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <BackgroundColor>#4c68a2</BackgroundColor>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox13">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>소매점유형</Value>
+                                  <Style>
+                                    <FontFamily>Tahoma</FontFamily>
+                                    <FontSize>11pt</FontSize>
+                                    <FontWeight>Bold</FontWeight>
+                                    <Color>White</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox13</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>#7292cc</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <BackgroundColor>#4c68a2</BackgroundColor>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox15">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>체인정보</Value>
+                                  <Style>
+                                    <FontFamily>Tahoma</FontFamily>
+                                    <FontSize>11pt</FontSize>
+                                    <FontWeight>Bold</FontWeight>
+                                    <Color>White</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox15</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>#7292cc</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <BackgroundColor>#4c68a2</BackgroundColor>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox17">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>상권</Value>
+                                  <Style>
+                                    <FontFamily>Tahoma</FontFamily>
+                                    <FontSize>11pt</FontSize>
+                                    <FontWeight>Bold</FontWeight>
+                                    <Color>White</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox17</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>#7292cc</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <BackgroundColor>#4c68a2</BackgroundColor>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox19">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>산업등급</Value>
+                                  <Style>
+                                    <FontFamily>Tahoma</FontFamily>
+                                    <FontSize>11pt</FontSize>
+                                    <FontWeight>Bold</FontWeight>
+                                    <Color>White</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox19</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>#7292cc</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <BackgroundColor>#4c68a2</BackgroundColor>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox21">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>PM등급</Value>
+                                  <Style>
+                                    <FontFamily>Tahoma</FontFamily>
+                                    <FontSize>11pt</FontSize>
+                                    <FontWeight>Bold</FontWeight>
+                                    <Color>White</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox21</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>#7292cc</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <BackgroundColor>#4c68a2</BackgroundColor>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox23">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>POSM종류</Value>
+                                  <Style>
+                                    <FontFamily>Tahoma</FontFamily>
+                                    <FontSize>11pt</FontSize>
+                                    <FontWeight>Bold</FontWeight>
+                                    <Color>White</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox23</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>#7292cc</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <BackgroundColor>#4c68a2</BackgroundColor>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox1">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>=Fields!Priority.Value</Value>
+                                  <Style>
+                                    <FontFamily>Tahoma</FontFamily>
+                                    <FontSize>11pt</FontSize>
+                                    <FontWeight>Bold</FontWeight>
+                                    <Color>White</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox1</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>#7292cc</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <BackgroundColor>#4c68a2</BackgroundColor>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox25">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>POSM코드</Value>
+                                  <Style>
+                                    <FontFamily>Tahoma</FontFamily>
+                                    <FontSize>11pt</FontSize>
+                                    <FontWeight>Bold</FontWeight>
+                                    <Color>White</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox25</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>#7292cc</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <BackgroundColor>#4c68a2</BackgroundColor>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox27">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>POSM명</Value>
+                                  <Style>
+                                    <FontFamily>Tahoma</FontFamily>
+                                    <FontSize>11pt</FontSize>
+                                    <FontWeight>Bold</FontWeight>
+                                    <Color>White</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox27</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>#7292cc</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <BackgroundColor>#4c68a2</BackgroundColor>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox29">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>수량</Value>
+                                  <Style>
+                                    <FontFamily>Tahoma</FontFamily>
+                                    <FontSize>11pt</FontSize>
+                                    <FontWeight>Bold</FontWeight>
+                                    <Color>White</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox29</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>#7292cc</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <BackgroundColor>#4c68a2</BackgroundColor>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                  </TablixCells>
+                </TablixRow>
+                <TablixRow>
+                  <Height>0.25in</Height>
+                  <TablixCells>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="소매점코드">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>=Fields!소매점코드.Value</Value>
+                                  <Style>
+                                    <FontFamily>Tahoma</FontFamily>
+                                    <Color>#4d4d4d</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>소매점코드</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>#e5e5e5</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="소매점명">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>=Fields!소매점명.Value</Value>
+                                  <Style>
+                                    <FontFamily>Tahoma</FontFamily>
+                                    <Color>#4d4d4d</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>소매점명</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>#e5e5e5</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="MD지점">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>=Fields!MD지점.Value</Value>
+                                  <Style>
+                                    <FontFamily>Tahoma</FontFamily>
+                                    <Color>#4d4d4d</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>MD지점</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>#e5e5e5</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="MD존코드">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>=Fields!MD존코드.Value</Value>
+                                  <Style>
+                                    <FontFamily>Tahoma</FontFamily>
+                                    <Color>#4d4d4d</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>MD존코드</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>#e5e5e5</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="FS존코드">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>=Fields!FS존코드.Value</Value>
+                                  <Style>
+                                    <FontFamily>Tahoma</FontFamily>
+                                    <Color>#4d4d4d</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>FS존코드</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>#e5e5e5</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="폐업여부">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>=Fields!폐업여부.Value</Value>
+                                  <Style>
+                                    <FontFamily>Tahoma</FontFamily>
+                                    <Color>#4d4d4d</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>폐업여부</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>#e5e5e5</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="소매점유형">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>=Fields!소매점유형.Value</Value>
+                                  <Style>
+                                    <FontFamily>Tahoma</FontFamily>
+                                    <Color>#4d4d4d</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>소매점유형</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>#e5e5e5</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="체인정보">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>=Fields!체인정보.Value</Value>
+                                  <Style>
+                                    <FontFamily>Tahoma</FontFamily>
+                                    <Color>#4d4d4d</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>체인정보</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>#e5e5e5</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="상권">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>=Fields!상권.Value</Value>
+                                  <Style>
+                                    <FontFamily>Tahoma</FontFamily>
+                                    <Color>#4d4d4d</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>상권</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>#e5e5e5</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="산업등급">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>=Fields!산업등급.Value</Value>
+                                  <Style>
+                                    <FontFamily>Tahoma</FontFamily>
+                                    <Color>#4d4d4d</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>산업등급</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>#e5e5e5</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="PM등급">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>=Fields!PM등급.Value</Value>
+                                  <Style>
+                                    <FontFamily>Tahoma</FontFamily>
+                                    <Color>#4d4d4d</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>PM등급</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>#e5e5e5</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="POSM종류">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>=Fields!POSM종류.Value</Value>
+                                  <Style>
+                                    <FontFamily>Tahoma</FontFamily>
+                                    <Color>#4d4d4d</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>POSM종류</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>#e5e5e5</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Priority">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>=Fields!Priority.Value</Value>
+                                  <Style>
+                                    <FontFamily>Tahoma</FontFamily>
+                                    <Color>#4d4d4d</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Priority</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>#e5e5e5</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="POSM코드">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>=Fields!POSM코드.Value</Value>
+                                  <Style>
+                                    <FontFamily>Tahoma</FontFamily>
+                                    <Color>#4d4d4d</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>POSM코드</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>#e5e5e5</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="POSM명">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>=Fields!POSM명.Value</Value>
+                                  <Style>
+                                    <FontFamily>Tahoma</FontFamily>
+                                    <Color>#4d4d4d</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>POSM명</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>#e5e5e5</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="수량">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>=Sum(Fields!수량.Value)</Value>
+                                  <Style>
+                                    <FontFamily>Tahoma</FontFamily>
+                                    <Color>#4d4d4d</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>수량</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>#e5e5e5</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                  </TablixCells>
+                </TablixRow>
+              </TablixRows>
+            </TablixBody>
+            <TablixColumnHierarchy>
+              <TablixMembers>
+                <TablixMember />
+                <TablixMember />
+                <TablixMember />
+                <TablixMember />
+                <TablixMember />
+                <TablixMember />
+                <TablixMember />
+                <TablixMember />
+                <TablixMember />
+                <TablixMember />
+                <TablixMember />
+                <TablixMember />
+                <TablixMember />
+                <TablixMember />
+                <TablixMember />
+                <TablixMember />
+              </TablixMembers>
+            </TablixColumnHierarchy>
+            <TablixRowHierarchy>
+              <TablixMembers>
+                <TablixMember>
+                  <KeepWithGroup>After</KeepWithGroup>
+                </TablixMember>
+                <TablixMember>
+                  <Group Name="Details" />
+                </TablixMember>
+              </TablixMembers>
+            </TablixRowHierarchy>
+            <DataSetName>MD_OLT_POSM</DataSetName>
+            <Height>0.5in</Height>
+            <Width>19.94168in</Width>
+            <Style>
+              <Border>
+                <Style>None</Style>
+              </Border>
+            </Style>
+          </Tablix>
+        </ReportItems>
+        <Height>0.54167in</Height>
+        <Style>
+          <Border>
+            <Style>None</Style>
+          </Border>
+        </Style>
+      </Body>
+      <Width>19.94168in</Width>
+      <Page>
+        <PageHeight>11.69in</PageHeight>
+        <PageWidth>8.27in</PageWidth>
+        <LeftMargin>1in</LeftMargin>
+        <RightMargin>1in</RightMargin>
+        <TopMargin>1in</TopMargin>
+        <BottomMargin>1in</BottomMargin>
+        <Style />
+      </Page>
+    </ReportSection>
+  </ReportSections>
+  <ReportParameters>
+    <ReportParameter Name="useraccount">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>=User!UserID</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>useraccount</Prompt>
+      <Hidden>true</Hidden>
+    </ReportParameter>
+    <ReportParameter Name="USERAUTH">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>NONE</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>지점</Prompt>
+      <ValidValues>
+        <DataSetReference>
+          <DataSetName>USERAUTH</DataSetName>
+          <ValueField>BROFFICE</ValueField>
+          <LabelField>BROFFICE</LabelField>
+        </DataSetReference>
+      </ValidValues>
+    </ReportParameter>
+    <ReportParameter Name="ZNECODE">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>0000</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>존코드</Prompt>
+      <ValidValues>
+        <DataSetReference>
+          <DataSetName>ZNECODE</DataSetName>
+          <ValueField>ZNE_CODE</ValueField>
+          <LabelField>ZNE_CODE</LabelField>
+        </DataSetReference>
+      </ValidValues>
+    </ReportParameter>
+    <ReportParameter Name="POSMTYPE">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value />
+        </Values>
+      </DefaultValue>
+      <AllowBlank>true</AllowBlank>
+      <Prompt>POSMTYPE</Prompt>
+      <ValidValues>
+        <ParameterValues>
+          <ParameterValue>
+            <Value />
+            <Label>ALL</Label>
+          </ParameterValue>
+          <ParameterValue>
+            <Value>PP</Value>
+            <Label>PPOSM</Label>
+          </ParameterValue>
+          <ParameterValue>
+            <Value>TP</Value>
+            <Label>TPOSM</Label>
+          </ParameterValue>
+        </ParameterValues>
+      </ValidValues>
+    </ReportParameter>
+    <ReportParameter Name="OLT_CODE">
+      <DataType>String</DataType>
+      <AllowBlank>true</AllowBlank>
+      <Prompt>소매점코드</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="CUSTOMERTYPECODE">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>00</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>소매점 유형</Prompt>
+      <ValidValues>
+        <ParameterValues>
+          <ParameterValue>
+            <Value>00</Value>
+            <Label>ALL</Label>
+          </ParameterValue>
+          <ParameterValue>
+            <Value>KA</Value>
+            <Label>KA</Label>
+          </ParameterValue>
+          <ParameterValue>
+            <Value>GT</Value>
+            <Label>GT</Label>
+          </ParameterValue>
+        </ParameterValues>
+      </ValidValues>
+    </ReportParameter>
+    <ReportParameter Name="DATE">
+      <DataType>DateTime</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>=Today()</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>조회날짜</Prompt>
+    </ReportParameter>
+  </ReportParameters>
+  <EmbeddedImages>
+    <EmbeddedImage Name="ismsBO">
+      <MIMEType>image/png</MIMEType>
+      <ImageData>iVBORw0KGgoAAAANSUhEUgAAAOoAAAA9CAIAAAAszWKOAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAADHDSURBVHhe7Z0HfFTXlf8vxQZjsHGJcWzHTvlns9lsdrO7yf7z35Z1qh03MMaY3nszBtvBxhSDJNR7l2ZGGk2RpqoioQJGFAGiV1MEiKqGykhTNDN6+zv3PnUJREzy/3it4+PhzZv7bv3ec8+5782ISYMyKF9bGcR3UL7GMojvoHyNZRDfQfkayyC+g9IpbUIkyYs3XvktHXq94mCAgvR4FZfjMnGlOPlgZRDfQekUwAZQOar3QK21tdXpcjlaXQ6X6+5ctiFX0kF8B+WvK40229mKytLDp7NK9qZaC6I1mdsSdD5xGt94rW+C1idO55eg842Han3jtFtjNaEqU2JGrj63uGT/0UOnzlfeqsJskPP6y8ggvt9EgTkkI8v/a1/bSWAgL169sWNvucKcT0TGaPwTdAGJ6cEKQ4jSGKo0haeYoWGqvg/wimTBCmNgUkZAot4vXvd5lDoizWrYvuvAyXN36pvkYki8vA7A+/7ckh4yiO83UWR827lxOl17j5xKMuVviUnzi9cGJWcEE5TG8BRLhMoSkYpXU0SKhUglTC1hKaYwfixOglqcwbGAOEJWS7iKPg1NMQcrjQFJemQeojKaCvdcvnZTlCu8lUF8B2UgQv4nuOWOqCznLl0NVZk/j1b7J6WHKA1hYC7VFJ5qDkuV0SR2uRK7HEoCGkopwTEg5idxDJp5so5jequyhFFu5nC1GelDU4xBCoNvnP6zcEXB3vKGJptcD9SIO9yYV/KZgckgvt8c4fhyPlytruyS/cKLhXXkXHIKyYjyt8AOx+3sdhpUtSUkxRiqMoL1YKUJOAYrDbCpYTgDRtvTd+BLSqyLy2lKUCYgXm2Gg/F5jDpGm3nqwmW5flzE8QBlEN9vlgBcLN8b
+olRBSelkO2EU1YSssKD0yld8oIZPw1TmEKUJvoR/gt4vQe8Tp90SrY5QW2J1OQrTdqW5QGnOV5nzEa5FabK2JerI90jQbYvXA024y9ypIHDDU7hTIfwQDjQKJUufYkK0tyVGHag0nr98Ta7i/chfG1+aXV4sEvTffS4U/xukTfJQrEL+Ht+hkq0h/v9L9QUvTA7/d5Qe3BSdGpiUDuMHnrCycyvLqeX4wi4SWKnmwGQDDLNfgjZWn52DuOt8xY2q2lZ3q8inP0Gr6ptsl67e2H34pC5nJ1xe3xjNNkR+8InhQmCeCILJS8YrD/uoRAvMOdAPTjbgcspHds1FrneTQev7v1yEkbh5u3ZzTCpMI3dtrYAJ6IAh2D/AJFvHVEtgYvrWOA0+zd9Tfqu69j6X8m6bGELsDufRM+fVWUV+cVq/eD18DCqXiiN8hbGPgDeipiqFppg+Dk7KLy2XLx6AdOJLhZNNkKmvb2nNOVGVfvDG8ev1/HMSvstBdqO/htHllE9P03qt3pG6v9I378Jqw6m5KcfejCl/L/HwUu3JNcYzAQUXDOU39l+6c6vBLqfmws2GfNxDaHbic6pyf4JreUva2jz95dKP3KV1EPqMmngvkffoO1O6PN7DlfXpB69/ZDm7Un96WvLh8XHlM5VHVqWfXGc5E1JUkXXi9rHKBnurR75ACG8EN0X314oekrOz7OOABKzU8BYiQHAaBV5k/9Q4AE9m/wTdhnBVQWl5o61ZvoY3FkV3lE5t777R1l2QTE6J1veoMY7PVVTCkfg8OjVEYaRCYezJXRYHZJ6h8Ex84jUByek1dxpwFc+GWOqvyC74IikH4nJdC5tlZW+ns6lmNs3M3jWwCenL0k/yVNQAqlnf+eEseQbiTXWTc2X6qXFrC9h7JjbZxKYZ2UwLmwW1sjmZbDbXWSY23cqmmdgUE5tqZFPMo1bk/SH84Or0UzwPZNVfzUniSyt/H1721Af5QxbnDV2c/dK64qlJ
+h7+8JeJZXlVq1N1y6E9O3WhanHbyJ5t3Pfdx0XMfF//N+pIFaSf2VdyRPx6wHLxS/17SETY/m002sClG6s+ZmWymmc22UvPnWNksM5uRyWZYqLdFgon6lz4reSvmkOWo2GAifvofwXsIjRW/trnZTo5mbBriLUEtNFJt9k/M8EvUHzxxVqT/S0uDrTk1s3BTlBoxH7wU8EoxIvdhyKNINYWRL2H4LFxVduw00pOpap8VvaUbvnjdX9nAXtOxuVlscQ5blMMW5w5ZlE3Hr+n+YdMXlKzLdBQCQ8iNBIk4oy+/+dj7BWy8nkZlQTZbiHyyhizMZQuzkecQ5MmVIedFeUNQCg7oIyTIovRA/JfJIqsO4dmjirLFTSu/wd41sXczaCbM51dB52UTE39I+9Hm3fUtLiQTbra45C7S3gA6vnrH8TAqg9mLyYac57UrZt349KFzMg9WNvJrKL1cGyGicu2lrUg/w6aa2CQDkUqtEw3MRVdQh1Cf8FecXJRLnbOYdxR6A6/A/Q3dLzfvFln1P34ca9m17buZ8hxuk436iXOXtsZr/BP14AYe8OYYTd6ufeKjHlOdskbO/OK+s0YaDg3VYACdzJOjGpTS4XJFppo+j00Lw1ziZpjWBIR6qBXWBB7h/Sk4Ycfew3QZL59XpGdduvi+/IO3Yg+BiSHU0TkAa8jCbI4a79OXlSJhj97EO84IdeItm4tNt7B3DDQAhD7PhPJBJiKr7kr5twMtysL4AcRfp4jMO4T6klwGKiVwxyX2qoaKkOspcuvIKg/cjJhlPcnNMO+yewjHl3IuvVTH/lvF5llRefDEq408qf78TC4B/Z+KvZfJofK0IQ4T6JDQMe+WpL2VbLKR1hzCkSY/5SP6QbSUFCd5zrza7WUhGdclOexd46/894ic+xPihtMpv7+roAMJRy763JLPIlQImIAL4rPC/UfE+QFm1V3QZsHlfcvpi1d94rQByXruPFgotuMeObnFKnNkqmVz
+VOr2Lw6KxNTOXlOpq+9LVfcDGW/pyEaSSZB7nC3JZdPNbHwGEtBs7p5HR6bbiirYm+lkqLil6ZtXgZpMLR9OIoNMUUcaPlV64sv7n2rocHuIDJg0Whx4DbthwXOAvmd4ZsV2ceUAhHKusbvZe9yci1bLU7c9T/6WCp1rHTnZJF/Wa7xfCy9jb+nZAixffHnplU/HLOUEt/NK57ukQYcPBF9MO94nWZcaWPCRsbGnvq88+70eqjj7bOLpp+OEM0bDJwarqq4+WGH0iU8DN8RQov7yjdsiTYeoD1xjC3Ke/KDwB+tLvtdLx35Q8KvA/TaH2I7o2Q/3FEG82+2N1loRL0aqyS8PU7XfKCE33RqhNq4PU+06eBwpafjvhS99NjHxKNZfMqJz4Zxlsdlm9jYG1XrHQctxL8Hco3qElFSwN7RoraCqK46dSgslDLkYVLGAyhZUZpEn6wdfWUrO1WBh5dcSCgK1HirX4Y+aDw1n5MvuIdT7U6IOskl85aEc2qkSKqyv+AiLw2RT1kkabMK3DWaYBG9f+LiITTCwJTT5ucPAZyZZ2faKyW3n1aYmYKoLh6G9T0RzBoYvCYrlBCM0/E/zJbZuPws6ykKOceUHwdAjdHL93k/KbomLOibdvqNn1oUmBysMQUrDupAkTXYhCMF5sIVxxUFDS+uznxSzV9TkT87LZPPg2MBbyyZFP8A5nJjxac6XPDNBmEfMqAEI8peR02UXbYhIpbCyA19+90T4FZ8EJ52+eAXJOLyUvkO6+b4ddFc12tcYT/8mZN+/+JXOUBzNPNpzXnYRSl9Zb2evacnuto9Td8VwCkzhm1rJp0SAgpbDos9EGMc9V4ycbKU41v3jWwx8X9cSXj2sWhflQOA1m/2/JPmye0nppTt8xlp5bbuzK1RYSmTL8Y3cRfeKaM4TwTRg4bsuk+MB8gSduIQzyrPCW840KobLZ1vYDPQAYlYc8FgWZBDH3NPgxcFp/pX/Xl61+5DTdQ7m
+V84+P8TCjrPw4yz0BL2GHWXhR1nYCbbl4NDgo6drHZSUSKCxa25xpGUXqkz5adnFSYbtcfrsyptEuXCoBCzJcIdQSXhEaB0aRYqu4NYHjZ2YjlbUtpAZRnqv9Oc4Ejk7yzZFpYgd6HCuYmcNB6FK09rABJGsf3xpWcFQcHvSh8gTpZfQyVHLt7MpZm6fOi1NuwrLmovQe/iczD/GHPLJ+TKu9GpkSUXkzsufZp771217HoLNRoiD0Bs0Y5ZjZv86VeTeW0q+BL7cvelZUKfKKKCvJ6S/Gs2dJ1STIOtsAn+DU/KZ3weUsokwnLi831khlHJ+1xj7xVWeiTzEGLFhU4xUeRnBnplQD8BuvZ0+YmXeDOWx8OKKmJ0VmAPBhZeWaU/949YvKM4DH+gEincz2aRO69tZ6bsJWiNzs3L3TbbxEAs4zCLALjg+RhALhT3+pOz3mZdgrZGSVo++hK/s3JiSRZPTLNSeop4XRmoRNZAvGnxwERK8oXs7kSItCHW2uJzPkHuJnL8+b6dPrCZC7KDRXTpuiYljs1+iPlaTKZJ1lS6h21cQ9k8JWDEJmt4WkexNDntFU3K2Rk7dl7R6vKXnq9/POPWPPntgAtnP4uUPesmA8OWrMOkCKzyf9hiOOlRkIkR0MQ6OXGlkv1UL7MR49Miwq1K2kw2xuwhfmgDch9u6/QKAA7s8DfLprB5tp2AiTTM/uTL/xA2+a9GPNNpd+kPXPzSefnx1IVazX6zfKc53rIoDl1q767nkM+yzMhZ6hIWfYKHcAOMANhgQbzvCNh/0O1wlp763cCD5ARmXdzJ4D/OWiuVFuEk0/Uy6Q50PlPU3PbpKhwmABCSnByozQDA95dPx4ITKFAYHPSbtxPkKkaxDHgC+e7Ds/iaVLckjw9OLKhrs17V5J6mnKNKQe4GLPL37GJsztzDMOE0rnHyqXe7D+uIVx5NNr4aXyRd3y42KF0XTNhm8GloocDm5oT0y7KqU7XsmYX1F
+JvhntuoobZD3Sky5LcpjsyyjFuWcuc1nEQrt3mrKolcnuNzeK7UtdLYNdrKPfrirIDGlDz1SxfwOMV/hSwBfvAJfrjizGRb6iGsAhKGCHkJMThm68wqRCt8P+HJ2KQgRPYOD1zV/s2nX9XruorRfcldBVeXmNzTZ1von0GYwDHC7H8wf8bH4xGtTrAXigg55APiWfFnHfgt8BTS98MU0fU13u0E0hqwVDaAwhbyXhfBPu3UkznWHXZaB4ctdbcI3hxa7d435p4Xt7yyBmOHkacpvspdVbCmmH/K8B7tQyrYTX2oSXmcRvhl9XssWZcEpemF1wW2bU1zBBY3zSG6X5GmVPE5SdzOpx87V2Warl+wtksdNVYa620g9SO/ySADa2wy3VZLquNZyxYyHwgOFYkmgVQG9bpMWFe57ac0GFqhnikIWc5mFnB2+pfLxkLrH/U89vOnQc5tTp+2+dlSSKLxHBp46p6NBkpweqc3pbhWFexDIYUZJkt0r3fRId5C4WZqzNYm95vPEfMVTiwsem5czfKGOzU5hczSjV+cOm5I5Ykbu9Ng9yLOeq9TswfXIztneIDTJ42pBIZK7RdTaZnchgXnHPp/w5KBkS4Q6NyzVGqXNiVAZolJN0ar0wBhlxbVbbu6qCX0A+F5vdLD/UHLr2we+UArO3tHtvdh58/mryEDw7Vy+EWlhXk0y/DZQhEGd0wH0ioPhCKHmZMo7WeKqu2p3fGnvF/8sSDtO7jslaDdIcnq+AmA6TTX96JOdp252/cYB8GqRXA7JYfMCVk+L5OXsNtW67lRzpt1SSzOG2tFo4zMdI9Y3vkK74ouJSXMTZx1SiSTtkqQhKSUs0sr8jrHoCrDLNlaMDTg9xu/ED4NMz3ym+LdPtygu3/K4qnkeTo+7WUAGbXY4hXkBvtDbbYTvdayQLknRKI2cFs0maYdPyRizyvrY+5lsHiBOe2x+0ZDJlu9O2/bSVL9d547VgjReLcFcbX0DQAW+
+1EavgwiWWp2OJnwEfL+80egfnRKqygpWWMPVmdG63HBlBvCNUuqDYlVlh48/YHwh7JdJgt2+qOLjB/8Psd0006PvF/zcd/cHhjOqfZXll+vd7U6PEL6qkmmiYzJQslnuKgPDt5sSPb9NPXWjOzpcFmlPkie3OK93sNWf9sAXNcY/eWer6GYNDK3Y8ejcLBPN52srQjekmZP1zIeFvw8vW2s8rbgoFbqkM0CBAwFFFav5MMNKIe+2VlcbEPfCZLnJVHubSGGw8RYogQHY164KEoRyXBqkhmZAfhuG3Gt3SpnZB1/0TXvJT8Miy1jyiVERFQ+HnB+z7cjjAcdYzD7mX/Ca+rC2TTovkd6x1RJ0nhrJXS25bZKzQbKjaKfUUuepuyG5b0LvtGK2SVHZ+3/42/fGvhXxg7maYfMzR6/YwRbp2CrLyOX72Mz8R9/Sjo+qOYkAQ5KuOcgSw9hCnW4RabbabXdAsKtZviGPDJP1WUGJxuAkU1hadqQuL1RpjFRbIxW60AS11pzd4pWXIsDxYPD9yHiG/VHDfUcxbHjtihcd0xDCkZifQ+H5LL53Rs85mEH2r0MPRBRXuHgMxAXQAmMiWD7RRe4XXyoUFYOJnWWRs2iXU7eaRyIQofsUWT2uuot2x5fiKl5hadxHRdQiHsLSZOi4JSHHc9nCwNPGGeJ0et7D+uT4zY+/seHZ19f+ZJbfyjCj+Vgt2AXBMLA2u1uY0JY7tYDVa28mO90VXw5oT2qhwkjyT8Hudcd1WvKrGtxexMdSliT9UlXCthWzmENs46ERoReeCT/70KZ9Q+PKWGTpSx+n/GxbVkDR0dNk21pBMOELddSTtjRKbgehTDRfk2wVQK2pTbolkf7fjwrYrz4fOs/KpunZciNbm8NmFYxaWfb4xIzR43XPvzlHeeIGFgPgW+OgdQP8gWCpjdcVBhgEu3BM+BbtP/55eGqY0gp8I7S5wDcqLRPWFwQHRMTCDekX31aPt9XtcXu8
+vdXR42GoTqHB+9mnxTBjfHTJ72xfi7sNPJTGXuy2UDIBNACy0m7RHzWjPyiM231ZZNif/Jn4gqpfpygP3EAOZC25LEs+QndAluSJbekeF/an3fFFH3qwSvBjif08id9vg/8gfAauXW+nyco5Rj8s2TF8RcnIlYXD4Hq9p2KTksdOi/7O4tTtNRIAgjGu5EDSQu7GGHtrpTZoI1dYZyh1FVSYZxp6KDkRbqkWSu/gnkh2qF2yVbtuwaVFOv0l6XefpLGAXSNiylnkCaa6zCIvsdAvWZzE4iW2cT/bWn5Qkk7w0m821ntc4I38YCAgygUK1I32Wsnd2GBrgD9zUZKsZ64+M1v59MxkNmPvQ0tPsLkY3+0PrTSwucrRC0rZH/V/WB6Sd8EL1uGjNHjJBnt5u8j9bXO22DA5PY1O6fTFmxuDk+g5nrTscE1OaIopUpMZozZGpxrWb/W3g11eB1i3nvi+Gbqf/U5NcWUPxar3i0Q5UXeBH4bX5lbP335UyN42sCVAgVsg2er0r9w48WGm8aZbTTBLk03sPeMq+W6ZGJxuct/OAzFEdGLVHjnTyvOgPG/csbM3dVQiVQCmsdeF/Wh3fLvJ+Wob3aGcbiI6aYryydN3VYngYcuLYYPZ9HSg/MSy7NELzU/NjAPBL4z/bMzLK/dUtl5pk22r22HHMNdIRDDYhYUWQ3gPfOvdOIH1vsFdV+epBsFI1Aw+JNKJlRLz30k7a8oKFnx2eFwlU0ossHV0xPkRwaf/dv6G6XFZcL1ROhnIdnyxKticngYbzSmw66m+QoG45D3XJl3jTvZcYw2bc4C9UzTik0NsaeGoNdahy/QPzSwCwX8/Yc33/7BkydaEm9x/wJwQK4zU2swNsNflwEyTzl+t2RyqCFOYQtVZIJh2IdKs8VoL8P10yzbg28oJ7gPfSQnlGBuMaI/upmH4Q5qcqLt03fRZaTzF/juVYjWYFgKCBo9yIwtEA9Yj257KuafldWL6sOV5
+D8Z5QIZUGW7pJxk+sZ4T+TyyfDtNFcwZvhp8dXyFE+x0e/5+8y66BwlPlxt+salE8xNFCI+iPauHFllHLs2GASaOFxWx+QVsQSFbUfrokkzoE29teNUv76qHbBVGq9HeKrMs3APasgBVYEBWWEYoPkcqcQoLGYwigQd3pLFeqq0GIl6X85AkFUrSb7bf/HZw0XD/AyODDz+pqGAbdz7uk/18+M4f+Ge9uNX0t8v91u+6AM5owZLczQgu3YAZ04ME8wf5C6xFdVDJKj4rJvia2fiA77yfMWR+Ppu3nU0rYPN3j1iRP3Rx9otvfPzT6b6fa0oBem0bzTN0WWOzjQJWMsBeRHDI6mzFzY2BiVEqa0haTqgmFwFcWKo1QWeNUOo3+gWhnWgQdx4eBL58BqEanai9Fn2AnmqdxB/wnZfN11Nu/zidPXLupiINB51Ns4ydn3mxDrMUS1Vn/vcfuqFQWhBobsy0PL8sz93WdvJmI3wJTi05qTy3+5kPfeIr/0tysab5++tLKCiENww3FzZehHTIgVdGVGn4QsvDizPZYgxwLltSwt7fy1btZUt2PrLIwmZqX5we+OT4jeOXbbrWvlzKnu5d8RVJ8N7GYaJb27BoLU7Ct6bK40Sk79168OJ/fB71yGfGb/nnPxp2bERQOdtWNjru3Ljgwkc3W769Uf+zmJ3lkrSPQ8mfk4BDCc8bkDU7+KMvwLehTbI7aKuj3kEEI2WI/otxr6/9/uSN45amjZgaNXxR4SPLd7F5XwxbtJctRNiqnBGUdwwBnCSh7+StkmYb9Vub0+tsIo7avHDUz1y6sc4nOlG3HexCI9KyQlRm4BuSmLY1KLyplfCFPih8ZcF8EBZIyIGKugWpJ77zSTHdEcBATjdTxDaXj6WMC/cuKEjHQTs9wkShRHirEzN+J984hR0eOL59OS3c5hE0kwzxpVeff78QtRIf0cOK3di9h8/TH769xen2Wo7dnpJ4ZOTKPApVJxngVzB4
+C+gEvjqNWGAaNid91PLcR5blPDRHNXy28vEl2tEL1XSnY2kBW3ucLdk3fHzQyh32hlZyCzBwULfkwXyWVyY4ocIPhQJwHMMZR1wHoGhj+boLqHhtUlsz7OhtSVJL0ks+pWzr4SFxV5n/CRZ+fmTwsTERp5nvoUfDz/x0XeQvtyrST1UC+lYv3xlwuiRXq9Tilpz8rgUcVjfew/PGB/CnqVYVkrS7WmLvRLK3w9mqA2zZXrZ0P3v/MJusfWxl8Xenhjwzfusv3/2k4Kwb4SNUrrlwG4RyQXFNLU6sHjnFe3wjkyJV6VGGYp8kc0xGAVyImDRLYHxaVHIa9YOMb6/Q7avhS/sFIpTpoE1Ivd2lLru+1njm5ZB9o9fsoEcK4U/PsMoPFvZj/8h9/C9VnY2m+0DwpaxwCXwPcrv7TACzl0vTaR5sfFbXdbxd+Q7XvExUrNdHsg4IX35vjXdJp5y7ZdMdvD5defQX2/Y+BHwnpA+fmwErO3S+adgC87Nrsx9flvHYYs3IuUpid2UxQbCsbMyU6B+tsVyphvPbDV85U44UlFxUjD/tFHuoWDiILsnmuQCChU9c6ZUCNKWProZxLWYRF+j+hd8xuoXhX87W7xyXXMlW560oOJnHDTYcrGaHk8oAqw2Nwt5TtOgFxpgdeEfhYJNXqm6RZvhon//N/BfXZI2ckcRW7GeLd2PWsZWHwC6bZX7slfWLU89g8lzm7NKTbKJXuuAr7zm40C5yjtJMOT4RiSpTXmBqToxpZ6DSHJxiDUnSBSdq07MKBL597zx8FXzvSy7XtAQXXmCzs8kUERNiX6l7oYjHX9ctVmPBQV3lAesfX74iz818cV0Rrdd9zQdSwEfOaPvj4T2Uw/0PG3b+dMMuePB9WuIB4Tsw2XW6MkRthdF6aGo8m1fIPjzM3lWP+tNetmwHW17IFu1mKw88MSOeveZXfvwsoBFWB2NMdlGMvRxU2V1tTXapGVovNd+RbLelpqtSDS6B
+FkuSP6I0n0LoY8FHx4YeH+lXPjb0FIs8NSLhwnN+1u+FbH97zdYz8DmcYL3G422BAqNGt7vJSRvQXldDWysiRrvkanTwzYebrbQFtv6oxMbHDJ2ufXJ5HpuUMny+FS77qMXWp+cqHp8RP+rf5/3XqthKO7/rxmcUJhaUf/Wjk10omuFodYvaXq93rfcLj0q1xKRlBqis8Zad/onpcH+jUjL8Y5QHjp8B6e2h218dX8wZzBzeGlnYK4hyuG/au1Do2+m/DT2AZPKUvQu+5E3msemWn/vsTii9Qmno8THZFbmXctbBJVaD6ZaiC7W/37aXTTX1Skb6VfBFI0SkyxcoL8YV+ukxafQcFVtziK3az5Yjessi67t4O1u6l31wGNZ37PS4/OJS9Fp/+HqkFhAMdm1SI9gFwdVcbQ6pxSX9PNj07OrwR2LKWXDpUxGnhm/ZOybo+AjfQ8xnHwssH7oqbsV5is/4gzY10CYbXmkRb2iFpZfsZBPJfkueZslNexctrW2XGqXx89ew3/g/MT/jW6sKHl1gYZPVY1YUwB1i09RjZyYMHR+Uc4OsOECvwuLgkewteCF8id1e+MJXgbVH5tGqDP8oRawmKyQpPVy33V9pAbsx+rw4jTkwLuVGXRPwRTLoA8P3zZjyrXlf2miidhMME62iXWAlfPl/VG8uyJY/5N7LzsEQotyJBvgb/EI5fb/48gAfwdlDS3KQjJ69hKtNtN17U4yIRANhv6eYvru+BJf/3UeF5K32SgntiW/73ZZ/9i0tPgfT1dlY6gAKB2jA6AkODi1/Q833tLUh3KmVpGVlEpuiYEu+YMv3PLNM++Si1Cfmqx6fq2CLdrFVZUOnp42Yk27efRKgixhNbNrTnWMoAIMCUnsrDSlMY5vUYJNut1DKyTulR1bv+0HM6WcDD7KI/Sz+CAsuZ5Y7TyWeHOL/xb+v8J0dYeB+gXTd3lwneWvrQJFAVWrgiuiqqs1VJXkQaV3hilhkatpV
+9qp2yILdbM1FtvAoW7CLzSz49nLrUwszfjBt6zNvfrwmRI2mwYtBmAWfw+PgWxbORr7lhVMCP4KYg0ybcXiPQs9cvr3289CkjO3R2rxQlTU2fbtvnDZOnxury/ENTzBu3yUQFxMYfflg8H3qgwL2hp6el51lmaI4bjlyw+5CKfeWF9cV04032pcg40dliQO+0UbR2+/UUUX0mNy9nQeyvvxLTfMI3/jCS/SdU2RCH/VK3F2JSL4VwP5bfkz+x8B3hrlP7rvj2xmtPvxOOm22TMz41ur8eWkn9l3CiN9D7kjSF2dvjFtbMGaphS0oZqsPsDe2Pbcq46mFqU8vUrN5RWxp6Uj4x5OS952vAb4tXAEozZiu+Lq83toGMao2OyW4WOWZtvjTZzacHL32wNN++5702cMSjtKdtowq5l/G1mWOijh4mPu4Ld62RldrE99M4JNMgkfb4Ka3qB7YBcEo+lJzA9jNutA49HX/cXMUDy/dT/guOsZWnRu66iCbXQh22YTo7763ubiFYkTgi1nR6GojduE1t9wBwQLfdoIJXWGP8Qba5JYiEtPCFIYEfW6I0hKhzobdjdRkR6qtoUrjBv+ICzfrRcoHjO/zHxbSDhFYgQlEYDTVhFEEf/8RvG9D1jn9wRsnrjdWNzkbHa1Vjc6ztxvjvqh8OXQ/FTQLji/QIZWXb6EcaHIqXtfanDRY3GyR3M33hc6gzQ0kq252vbiqgL5AsZhuqvVK3KnUWFR7aR57Qzc55hCubWn1cHwtfXJPFetifdunlfQwmkMbZLza6AS8nWx8ZGX+q1GHAgvO55yoOn+7qboJzqPrer2jrOJORMnlby/Xk5VF4pnmx94vGLU894VFqnFzE8fM1z2x2MAWFrH5O56YGfsvmwpqmmlDl0Yc3SCURl8G+hwP0Mr4Vpdekv6YeZGtVD8XWcZCbw2LrR/md55tOfNsWNkYn+Jx64N+GJAQfujwGUmqs5PBAwieFrzQptttO1GL
+bJsbMQlqYXNdLtJKfgvwp2vTRk3Y/NA807A5hhGr9rB5+WNmY6ZZH5sY+t0FKX8z/qPNhuNg/TaFdTzsI9LcLhd8am9NA+BErV1ciWAZXBwhHET+dc2Wwv3hyemBCQaFqWRTuCYyLR/hmspcEJKYBq83e8du8nrbfacHi28Rm2KklO2OJhkzcTdYfDUIJpa2GiyU+XtmspEYMxFCUXrOLg7kfV++FwvT+6bugzT+HB9V9Z74ktJPKMyRH8vfnPslZlF/KTtU1IGivSkmJ2LjDnynmbsm69Ae+FJHcnkYk3YesuKrB7WCOyQL+DMVM9AD/MsUaP50/qsXmO0zLTCxo2clDltSMHRx/pB5RujzC5VPz4p7dK4GBNMe8Nz8kZNCPjtIA0z4drDbjq9wJ4AXFOxuO1r37U2Gpz/VvhhbPmpLPgu6zgIqR4ddezS0cuSm/Md8S/5NaTHwJ4TQrSLPqspaQ5o5XhGXqEoITswOTc6tvHydMnfc5i5Dc1tb01Zt1o9fm/zcnPBnZgQ/saoA+IJdtqho7DzT6FnpwPfvVhkuwkLDarjlmxHuNq/LjrkAaOEr0WYFiIZ/2wNf4c2jGhnZOzYHx8fSF+WzQhUWsBuemgd8kw15YNcnItHuJXPezB9dEAp5oPiKUEmkpx2oPADKDSpe23/cQKzRC+WvKPZandsNMNh91/DTPxW7yHEEvOgQOoAMHF/IyOW5ZER7Jeuu3Ot4TRNdSLeoIDK+0/u+kKrXH77z+zDz1Goqgt/2o1c+t+k8OiGP/P6F2fTMw5IdpMv3svcP0OvsgnEL1A+/E7HCN+EainDXSY4qgazAl/znNhnfa5JkPnnt98GGn3wQ9pKP9TtbzCM35X4rePdT63Q/DCx4YZP2+Y2af18dqLlAZpaIcsC4tsK1Ne4q/jQ8JkClUUenhW4Oy9t7sL6NzPm1Bqd4vCal3PGvc4JGvR0x+p2oYdNTR8zWjpqd+OicpLGzAh6f6f+Pr8x6
+Y+FnxUfoly/uOKSaZtSJdp2pjLZWl7PZ3QrqOM1wbT2eVi/gg8cjnyGm+U0W2NcIpT5Omw3PISDREKXJpYd9U7KT9ZkbAyLjUvRfVlaJ9LDWUDhsFFI8YOvbBV/Szm+Ei7fcLME8C2Tx2p9nidF9O+ORVfly7t1loPjyRf3A1Xr2b4ohS/N6JOuuOVgNvvdBQR2iHy4PFl9SeVFCnYVbLx8/vKqELckX+A5fgeMdbEEJm8NfV+5nL298JebULb4dIDmrScXI98I388zNLfr8mZrSZVnHJmyvfK+kasKBtt8UNswobXwzp3Jy4dWJ2y+dkCT6Jhp3FSSn43jp7kBl0pbYqHCdcUu8wqgwee7QM8Q27o1Aa9oky+5ziyKKp2y1vKuomKy8/Lqm5g1t7VuaK2+mXZ6YeniC6lCwtrjCQea20ibbcjuCSBDmhL8rh2gwwzZ7S4ub9sVgf7nCiNob7RTpX7pVE5GkilEbA2JVPpEqpWkHgrZghTkuvTAg0YRwLSYlY8/hU408LiW7jbAf+XB2HzS+SElQikifVk/xKg7krIhgMYpio1cgzo+F3YU3/IZufKz4nTY+UN1lgPjSSkVDLdFzT1NNNLV4EV0Sy6iJ2RLEA0TuWX0FfOfxmx0ohbeRL0Ewru3X9qxALn0Vb4F1xALDI4tMwxdkQR9ZWjB29a5vTQp48m2//NLDwKiNvpLQWs/vuoEPLKCCYbp3AXVjYFslBMoOl4eehCXjBje2ySE1u+RHc9ySs8FRh/COntbB9U4pQbsrMDYzMU0do1QoU5UXL1/EaajUckpq/ZLmSfNNBIQiOCRriTZC+WigSqBcPCTZaJON650G+YH6FhSM9+DM7mi1NdAjGJgUpDbJ0+Tw0JMbzfTFC2pLwe4DgXEpkar0cGVGYnpOrC4nKCk9IEGXaMjfGJoUp8+NTk7de/gEgh+OPjkcHtrFe9D4PrIsl37kYW4m3a8SSyRxzL0FeksDSfkIQGUVhpbT
+g1cEPQizJqT/s98eBHmUaR/okgwQX9gmPlGl2zYHe1VLDihI4rXiKfnyjQrg5MSMb/+pSL7k/vEVX9WEPPyahlx8uPt024/aSOmpCO42wNHHcbevsmaPXFkAt2rYHN3D8zPoPtxsE3tXw95SLNCcx/Rt9PDQqq31TtUNHEAFZIKYbvhiYOmOFgX3AjgbQG1/8Bz4QqXGFsnh3rezwmdDckCMNTqlEOz6R4TvKN5hd9FzXjK+7vO0H+2tF7sQdgfdHe6BL2pC+8O8GjV1DS0OuK/kM7gQZIvKibHztpK6GiRnvQRXxUPRGxlRSTpx/nJQdFJAZILCkBOWrAW+8bos/3itOntXiMIQqjSC3XX+MYdPn2900b4ELLnIGOBSl7RLT3wnxB+i5xMwAD10bhb7nVpO1EsuVtsid16anHhk3IeFZD7fNVJogkAN8Rm4mZdFW/EiH8RzIBUO31wrfYo0FNAYx31cuMYoHpK8hxSdq2avaChPyqqXTjWy9qci+Z4rtfbAlYahKAi1ErOLOOZ3KDDf3tKPWUFeCsddfPFHsrm9P1rDf1mwR+ZCUfTEjMhd9MMZVApZArrs+I3GTy1nXw4pe/T9AopN3+FfZpzFg9R5uLDLb7EJnZc15p2t42aG/J85wS9O8/vxlI0TNuvM+yvIVRDD31onOWvcLnqSUH50RpznyuH1uIgup12y1bfWtkjN0NveqibJ1ijZqmlP+arXewmDj6W6qkpSKHI2BEfF6cxBakOo1hxv2B+l3R0WbwyJzbDmGxqcNeASlrXaKd3hMwfaRo8AAX7uujhrJFctohFEXvCMoQJ6wbb4PhxVzOmmbzfRww04dvFHJPCBt6WFvutXfupqZHJGQFRKYnpeZIrZJzo1ItUCXvmPkmQEK7RhSm2oQuMbGX+68jZmINhF5ojYKHPClxtimAzaN++GLxUyQ3GEzbKOWp43asX2rjpiWR4br29PR36XOIaIIe8q1Tbn9lPVIUUV0xVH
+/zNo7w8/K376gx0PLcsbtRxZ5T20LPf5jwr/Ycvut2MPbcw5v+9CHeohX0kzCnOeN7dXviLRnot1oOGFPxW9uK64Q79Dr0UvrSt+fHXBsx/u4AkpH1pl+BtIWNHFsWt20HeW3s6grxYvyPln39KScwCDhG6lEO1UqNPt/YVf6WOrCroW0aEvfFz08PI8zQHES/J1JF06RMiV2mbtweubc85PSz76Tz67v/tJyWPv549Exy7Po9eV+c//qfB3QUWTFUc2l1Rn3KJnw7/kJg0Vwsrb3NAoNV4nglEtd+tNfp4Kadeu+IonEAS+jVJTB74eeoj8GhAw6ow+PolBQalKc264ShdlyN4Uq4zUfBGu3ukfoYlWZCZr4oKjt6kMOeeu1YJgKNwVGFpuLt0UOEI99VABq8DX5qLtfbxtcbU6HC4aRnQEbDF6EYq38GP4yfr6utOnT8YoDH6hSTEqU6qxIChBF5KUDj8B+IapTDHa7KBkTQTmlUKDCXalzobShfvs4k9ICukXXz7SqAlK61c4XPQrQDRef12hoqnGPZnuR0TnkRDEd60wrf5dPhxw65Co20/0/RlCsQ7Gnr8iI8rL1STZQQkcT7fDLdm4J4lRkZy36Es7PJVIKWJwsfHU4qQ0LrvUVM+PCCg++Hh3h0Ir4LhZr/kkReGjy/w8zcxjo4KolHT/GEVshhn6WXRKUJo1IrnYLyLLJzghNWP7+StwiN0Nkv2Wow5mHNrEb8KRDw0nobkJCpRa3BRQEWaYSvB0+WOczqZmyUNfA6qsaraUnglOyVkXbf401hqpsEYpMwPjUK4uSp0Try8IS7X6J6YHJOkjNZmwu5/4hx08dwF1h9a73QBXPMdDPUMtb7/P3Ce+3CHmMU/fQoC3eTFmuFI+1Z8ggRhaQoHIwzE/IlI4UdCu1NxbeN14Pfu5kBKgJA6gfArCC6OWSTTxOj7gaSkhIdg1Q9ELIi/5VC9BGpEK/8in7ibU6xDq986CcDHW
+WyFdzz9g4dnLmR8/eyEgMd0nXke/YSOU/3Er8XMKwgrSz4rR7zIZAhL1W2LoLw6lWAt3Hjh68nzF9aqaZrud+/q9a9vmbHXVNTReuHqj/NSXxoLdMbqsrbFpvvHaQEUG/Sw2/fJI+x8HQEH0u+r0s9jh/JckgxWGzTHqVHM+Kkt58c7vZ5S7STfngTvrd+9K6ol758rz6kSFriDl53gh4tx9irhc5NWf0GhREfJbLnSGAGq/Dv/Q5+SbUWY8becFlAMVwqnrTwSPNFfuUpdOaU/bmZjXYUAj9BWF2o7/qBy5OWXHz2yITPVL0NKP9AMm8SP98g+C8L83kUJ/3oJ+20b+6yyGwKR0+uss8bqtsRoYyxCFER9Fqa3QCDX9BllwcoZvrMY3TrstXv4zhmHcnQ2T8yd8xfTgpVgi1OLPEZiDlIbPIpRJpvzOP5IlDwFqe+/O6Rm6Dcr/VuFzuHPCHDpxLlhl3BqjDqI/AQRkYQ75jzKRPSZqCS9uHYm2Dr5TCHGwGwrbqTSFqehPbfLEJvotHJGMp+cpiV3+F4SEsefzhKYHWeJt8frPY9I02SUNNrpRDeHU3t98HsT3myXAt+sCW3OnUZ1TtC1B5xunCUqmP2UFMwm8OlRQ++cqnwaAHnaX0DfDbMMb2RqTFqw0HD170Y3AThaaVx1Ta+AyiO83UsBJd8/o0rWb2SX7/RL0sMf+SfpgOKz0R2E7/gqQMJ+yZZUPAGjH267HXDn9ZKfJ90hO90vQbYpKSTYX7Dt8ssXukEv9yjKI7zdRyLVE7Mnjox7S3GI/euaCpXgP4q2tMRq/OB3cWfi+sM30h7kVcBWEGmFZ+at8JkRlDFEYgpMNQUn0ZwxxFa5FDinWHSVlRys6/44xFwqXub29f4ehqwziOyj9CvCuq286f+XG7vITubvL0vN2KswFiNUiyR8gRzZMLTxaCuNi9dnqzEJr8Z4dew8fP3ex8ma1k+7X/WVlEN9B6Vu+ol2UZUAb
+i3++DOI7KHcXvmfOMRb/9LfVLe+Ey2ngFgxo5+sryiC+g/I1lkF8B+VrLIP4/n+QHTt27N+/X34zKF9BBvEdlK+xDOI7KF9bkaT/AZZ2iAFECC9RAAAAAElFTkSuQmCC</ImageData>
+    </EmbeddedImage>
+  </EmbeddedImages>
+  <rd:ReportUnitType>Inch</rd:ReportUnitType>
+  <rd:ReportServerUrl>http://smartqa.kr.pmi/ReportServer</rd:ReportServerUrl>
+  <rd:ReportID>dfc37eb5-0253-4bac-a678-d086e0adf8a9</rd:ReportID>
+</Report>

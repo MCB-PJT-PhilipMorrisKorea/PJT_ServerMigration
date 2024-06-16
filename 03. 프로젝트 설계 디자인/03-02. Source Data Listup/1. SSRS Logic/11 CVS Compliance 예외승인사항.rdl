@@ -1,0 +1,2299 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner" xmlns:cl="http://schemas.microsoft.com/sqlserver/reporting/2010/01/componentdefinition" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2010/01/reportdefinition">
+  <AutoRefresh>0</AutoRefresh>
+  <DataSources>
+    <DataSource Name="SMART06">
+      <DataSourceReference>/Data Sources/SMART06</DataSourceReference>
+      <rd:SecurityType>None</rd:SecurityType>
+      <rd:DataSourceID>09854977-86f8-4325-bc09-d646d67c7740</rd:DataSourceID>
+    </DataSource>
+    <DataSource Name="ISMS">
+      <DataSourceReference>iSMS Production DB</DataSourceReference>
+      <rd:SecurityType>None</rd:SecurityType>
+      <rd:DataSourceID>70c7ac01-8743-46d7-86f5-5b58b726e6fe</rd:DataSourceID>
+    </DataSource>
+  </DataSources>
+  <DataSets>
+    <DataSet Name="USERAUTH">
+      <Query>
+        <DataSourceName>ISMS</DataSourceName>
+        <QueryParameters>
+          <QueryParameter Name="@useraccount">
+            <Value>=Parameters!useraccount.Value</Value>
+          </QueryParameter>
+        </QueryParameters>
+        <CommandText>SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED
+
+--'KAADMIN', 'KASUP','MDADMIN','MDSUP',,'FSADMIN','FSBOM','FSWK'
+
+if (convert(time, dbo.getlocaldatetime()) not between '08:00:00' and '18:00:00')
+begin
+
+select N'8-18시에 조회해주세요' as BRCODE
+
+end else begin
+
+if ((select top 1 rtrim(jobfunctioncode) 
+	from useraccount
+	join employee on employee_useraccountid = useraccountid
+	join position on position_employeeid = employeeid
+	join jobfunction on position_jobfunctionid = jobfunctionid
+	where UserAccountCode = rtrim(ltrim(@useraccount))) in ('ASM'))
+
+
+begin
+
+select distinct c.geotreeareadescription as BRCODE
+	from geotreearea a
+	join geotreearea b on a.geotreearea_geotreeareaid = b.geotreeareaid
+	join geotreearea c on b.geotreearea_geotreeareaid = c.geotreeareaid
+	join geotree on a.geotreearea_geotreeid = geotreeid and geotreecode in ('MERCHGEOTREE','SALESGEOTREE')
+	join geotreelevel on a.geotreearea_geotreelevelid = geotreelevelid
+	where geotreeleveldepth = 5
+	and LEFT(c.geotreeareacode, 2) NOT IN ('PX','KA','PM')
+	and c.geotreeareacode in (select right(rtrim(b.geotreeareacode), 2)
+	from useraccount
+	join employee on employee_useraccountid = useraccountid
+	join position on position_employeeid = employeeid
+	join jobfunction on position_jobfunctionid = jobfunctionid
+	left join positiongeotreearea on positiongeotreearea_positionid = positionid
+	join geotreearea a on positiongeotreearea_geotreeareaid = geotreeareaid
+	join geotreearea b on b.geotreearea_geotreeareaid = a.geotreeareaid
+	join GeoTree on b.GeoTreeArea_geotreeid = GeoTreeId
+	where UserAccountCode = rtrim(ltrim(@useraccount))
+	and geotreecode = 'RPTTREE')
+	order by BRCODE
+
+end
+
+
+
+else if ((select top 1 rtrim(jobfunctioncode) 
+	from useraccount
+	join employee on employee_useraccountid = useraccountid
+	join position on position_employeeid = employeeid
+	join jobfunction on position_jobfunctionid = jobfunctionid
+	where UserAccountCode = rtrim(ltrim(@useraccount))) in ('FSSUP'))
+
+
+begin
+
+select distinct c.geotreeareadescription as BRCODE
+	from geotreearea a
+	join geotreearea b on a.geotreearea_geotreeareaid = b.geotreeareaid
+	join geotreearea c on b.geotreearea_geotreeareaid = c.geotreeareaid
+	join geotree on a.geotreearea_geotreeid = geotreeid and geotreecode in ('MERCHGEOTREE','SALESGEOTREE')
+	join geotreelevel on a.geotreearea_geotreelevelid = geotreelevelid
+	where geotreeleveldepth = 5
+	and LEFT(c.geotreeareacode, 2) NOT IN ('PX','KA','PM')
+	and c.geotreeareacode in (select left(rtrim(PositionCode),2)
+	from useraccount
+	join employee on employee_useraccountid = useraccountid
+	join position on position_employeeid = employeeid
+	where UserAccountCode = rtrim(ltrim(@useraccount)))
+	order by BRCODE
+
+end
+
+else if ((select top 1 rtrim(jobfunctioncode) 
+	from useraccount
+	join employee on employee_useraccountid = useraccountid
+	join position on position_employeeid = employeeid
+	join jobfunction on position_jobfunctionid = jobfunctionid
+	where UserAccountCode = rtrim(ltrim(@useraccount))) in ('KAADMIN', 'KASUP','MDADMIN','FSADMIN','FSWK','FSSUP'))
+
+
+begin
+
+select distinct c.geotreeareadescription as BRCODE
+	from geotreearea a
+	join geotreearea b on a.geotreearea_geotreeareaid = b.geotreeareaid
+	join geotreearea c on b.geotreearea_geotreeareaid = c.geotreeareaid
+	join geotree on a.geotreearea_geotreeid = geotreeid and geotreecode in ('MERCHGEOTREE','SALESGEOTREE')
+	join geotreelevel on a.geotreearea_geotreelevelid = geotreelevelid
+	where geotreeleveldepth = 5
+	and LEFT(c.geotreeareacode, 2) NOT IN ('PX','KA','PM')
+	and c.geotreeareacode in (select right(rtrim(PositionCode),2)
+	from useraccount
+	join employee on employee_useraccountid = useraccountid
+	join position on position_employeeid = employeeid
+	where UserAccountCode = rtrim(ltrim(@useraccount)))
+	order by BRCODE
+
+end
+
+
+else if ((select top 1 rtrim(jobfunctioncode) 
+	from useraccount
+	join employee on employee_useraccountid = useraccountid
+	join position on position_employeeid = employeeid
+	join jobfunction on position_jobfunctionid = jobfunctionid
+	where UserAccountCode = rtrim(@useraccount)) in ('KAREP','MDREP','MERCHANDISER','FSREP'))
+begin
+
+
+select distinct c.geotreeareadescription as BRCODE
+	from geotreearea a
+	join geotreearea b on a.geotreearea_geotreeareaid = b.geotreeareaid
+	join geotreearea c on b.geotreearea_geotreeareaid = c.geotreeareaid
+	join geotree on a.geotreearea_geotreeid = geotreeid and geotreecode in ('MERCHGEOTREE','SALESGEOTREE')
+	join geotreelevel on a.geotreearea_geotreelevelid = geotreelevelid
+	where geotreeleveldepth = 5
+	and LEFT(c.geotreeareacode, 2) NOT IN ('PX','KA','PM')
+	and a.geotreeareacode in (select right(rtrim(positioncode),4)
+	from useraccount
+	join employee on employee_useraccountid = useraccountid
+	join position on position_employeeid = employeeid
+	join jobfunction on position_jobfunctionid = jobfunctionid
+	where UserAccountCode = rtrim(ltrim(@useraccount)))
+	order by BRCODE
+
+end
+else if ((select top 1 rtrim(jobfunctioncode) 
+	from useraccount
+	join employee on employee_useraccountid = useraccountid
+	join position on position_employeeid = employeeid
+	join jobfunction on position_jobfunctionid = jobfunctionid
+	where UserAccountCode = rtrim(@useraccount)) in ('EZDBIZ','EZDMIS','EZDSDN'))
+begin
+
+select BRCODE from
+(select geotreeareadescription as BRCODE
+from geotreearea 
+join GeoTreeLevel on GeoTreeArea_GeoTreeLevelId = GeoTreeLevelId
+join GeoTree on GeoTreeArea_GeoTreeId = GeoTreeId and GeoTreeCode = 'SALESGEOTREE'
+where GeoTreeLevelDepth = '2'
+	and LEFT(geotreeareacode, 2) NOT IN ('PX','KA','PM') and GeoTreeAreaCode in (select top 1 RTRIM(employeeinitial)
+	from useraccount
+	join employee on employee_useraccountid = useraccountid
+	join position on position_employeeid = employeeid
+	join jobfunction on position_jobfunctionid = jobfunctionid
+	where UserAccountCode = rtrim(@useraccount))
+union all
+select a.geotreeareadescription as BRCODE
+	from geotreearea a
+	join GeoTreeArea b on a.GeoTreeArea_GeoTreeAreaId = b.GeoTreeAreaId
+	join geotreelevel on a.geotreearea_geotreelevelid = geotreelevelid
+	join geotree on a.geotreearea_geotreeid = geotreeid and geotreecode in ('MERCHGEOTREE','SALESGEOTREE')
+	where geotreeleveldepth = 3
+	and LEFT(a.geotreeareacode, 2) NOT IN ('PX','KA','PM')
+	and b.GeoTreeAreacode = (select top 1 RTRIM(employeeinitial)
+	from useraccount
+	join employee on employee_useraccountid = useraccountid
+	join position on position_employeeid = employeeid
+	join jobfunction on position_jobfunctionid = jobfunctionid
+	where UserAccountCode = rtrim(@useraccount))) a
+	order by case when BRCODE = 'ALL' then '0' else case when left(BRCODE, 2) in ('yo','ha','sa') then '1' else BRCODE end end
+
+end
+
+else if ((select top 1 rtrim(jobfunctioncode) 
+	from useraccount
+	join employee on employee_useraccountid = useraccountid
+	join position on position_employeeid = employeeid
+	join jobfunction on position_jobfunctionid = jobfunctionid
+	where UserAccountCode = rtrim(@useraccount)) in ('PMHQ','SI','TM','MDSUP','FSBOM','MTADMIN'))
+begin
+
+select BRCODE from
+(select 'ALL' as BRCODE
+union all
+select geotreeareadescription as BRCODE
+from geotreearea 
+join GeoTreeLevel on GeoTreeArea_GeoTreeLevelId = GeoTreeLevelId
+join GeoTree on GeoTreeArea_GeoTreeId = GeoTreeId and GeoTreeCode = 'SALESGEOTREE'
+where GeoTreeLevelDepth = '2'
+and LEFT(geotreeareacode, 2) NOT IN ('PX','KA','PM')
+union all
+select a.geotreeareadescription as BRCODE
+	from geotreearea a
+	join geotreelevel on a.geotreearea_geotreelevelid = geotreelevelid
+	join geotree on a.geotreearea_geotreeid = geotreeid and geotreecode in ('MERCHGEOTREE','SALESGEOTREE')
+	where geotreeleveldepth = 3
+	and LEFT(a.geotreeareacode, 2) NOT IN ('PX','KA','PM')) a
+	order by case when BRCODE = 'ALL' then '0' else case when left(BRCODE, 2) in ('yo','ha','sa') then '1' else BRCODE end end
+
+end
+else
+begin
+
+select 'NONE' as BRCODE
+
+end end</CommandText>
+      </Query>
+      <Fields>
+        <Field Name="BRCODE">
+          <DataField>BRCODE</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+    <DataSet Name="ZNE_CODE">
+      <Query>
+        <DataSourceName>ISMS</DataSourceName>
+        <QueryParameters>
+          <QueryParameter Name="@USERAUTH">
+            <Value>=Parameters!USERAUTH.Value</Value>
+          </QueryParameter>
+          <QueryParameter Name="@useraccount">
+            <Value>=Parameters!useraccount.Value</Value>
+          </QueryParameter>
+        </QueryParameters>
+        <CommandText>SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED
+
+declare @BR nvarchar(10) = left(@USERAUTH, 2)
+
+if (convert(time, dbo.getlocaldatetime()) not between '08:00:00' and '18:00:00')
+begin
+
+select '' as ZNE_CODE
+
+end else begin
+
+if @BR = 'AL'
+begin
+	set @BR = ''
+end
+
+if ((select top 1 rtrim(jobfunctioncode) 
+	from useraccount
+	join employee on employee_useraccountid = useraccountid
+	join position on position_employeeid = employeeid
+	join jobfunction on position_jobfunctionid = jobfunctionid
+	where UserAccountCode = rtrim(@useraccount)) in ('KAADMIN', 'KASUP','MDADMIN','MDSUP','ASM','FSADMIN','FSBOM','FSWK'))
+begin
+
+select ZNE_CODE 
+from
+(select N'ALL' as ZNE_CODE
+union all
+select rtrim(a.geotreeareacode) + ' - ' + EmployeeLastName as ZNE_CODE
+	from geotreearea a
+	join geotreearea b on a.geotreearea_geotreeareaid = b.geotreeareaid
+	join geotreearea c on b.geotreearea_geotreeareaid = c.geotreeareaid
+	join geotree on a.geotreearea_geotreeid = geotreeid and geotreecode in ('MERCHGEOTREE','SALESGEOTREE')
+	join geotreelevel on a.geotreearea_geotreelevelid = geotreelevelid
+	join positiongeotreearea on positiongeotreearea_geotreeareaid = a.geotreeareaid
+	join position on positiongeotreearea_positionid = positionid
+	join employee on position_employeeid = employeeid
+	where geotreeleveldepth = 5
+	and c.geotreeareacode like @BR +'%') a
+	order by case when ZNE_CODE = 'ALL' then N'0' else ZNE_CODE end
+
+end
+
+else if ((select top 1 rtrim(jobfunctioncode) 
+	from useraccount
+	join employee on employee_useraccountid = useraccountid
+	join position on position_employeeid = employeeid
+	join jobfunction on position_jobfunctionid = jobfunctionid
+	where UserAccountCode = rtrim(@useraccount)) in ('KAREP','MDREP','MERCHANDISER','FSREP'))
+begin
+
+select ZNE_CODE
+from
+(select N'ALL' as ZNE_CODE
+union all
+select rtrim(a.geotreeareacode) + ' - ' + EmployeeLastName as ZNE_CODE
+	from geotreearea a
+	join geotreearea b on a.geotreearea_geotreeareaid = b.geotreeareaid
+	join geotreearea c on b.geotreearea_geotreeareaid = c.geotreeareaid
+	join geotree on a.geotreearea_geotreeid = geotreeid and geotreecode in ('MERCHGEOTREE','SALESGEOTREE')
+	join geotreelevel on a.geotreearea_geotreelevelid = geotreelevelid
+	join positiongeotreearea on positiongeotreearea_geotreeareaid = a.geotreeareaid
+	join position on positiongeotreearea_positionid = positionid
+	join employee on position_employeeid = employeeid
+	where geotreeleveldepth = 5
+	and c.geotreeareacode like @BR +'%'
+	and a.geotreeareacode in (select right(rtrim(positioncode),4)
+	from useraccount
+	join employee on employee_useraccountid = useraccountid
+	join position on position_employeeid = employeeid
+	join jobfunction on position_jobfunctionid = jobfunctionid
+	where UserAccountCode = rtrim(@useraccount))) a
+	order by case when ZNE_CODE = 'ALL' then N'0' else ZNE_CODE end
+
+end
+else if ((select top 1 rtrim(jobfunctioncode) 
+	from useraccount
+	join employee on employee_useraccountid = useraccountid
+	join position on position_employeeid = employeeid
+	join jobfunction on position_jobfunctionid = jobfunctionid
+	where UserAccountCode = rtrim(@useraccount)) in ('PMHQ','SI','TM','EZDBIZ','EZDMIS','FSSUP','MTADMIN'))
+begin
+
+select ZNE_CODE
+from
+(select N'ALL' as ZNE_CODE
+union all
+select rtrim(a.geotreeareacode) + ' - ' + EmployeeLastName as ZNE_CODE
+	from geotreearea a
+	join geotreearea b on a.geotreearea_geotreeareaid = b.geotreeareaid
+	join geotreearea c on b.geotreearea_geotreeareaid = c.geotreeareaid
+	join geotreelevel on a.geotreearea_geotreelevelid = geotreelevelid
+	join geotree on a.geotreearea_geotreeid = geotreeid and geotreecode in ('MERCHGEOTREE','SALESGEOTREE')
+	join positiongeotreearea on positiongeotreearea_geotreeareaid = a.geotreeareaid
+	join position on positiongeotreearea_positionid = positionid
+	join employee on position_employeeid = employeeid
+	where geotreeleveldepth = 5
+	and c.geotreeareacode like @BR +'%') a
+	order by case when ZNE_CODE = 'ALL' then N'0' else ZNE_CODE end
+
+end
+else
+begin
+
+select N'NONE' as ZNE_CODE
+
+end end</CommandText>
+      </Query>
+      <Fields>
+        <Field Name="ZNE_CODE">
+          <DataField>ZNE_CODE</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+    <DataSet Name="CALLCARD">
+      <Query>
+        <DataSourceName>ISMS</DataSourceName>
+        <QueryParameters>
+          <QueryParameter Name="@USERAUTH">
+            <Value>=Parameters!USERAUTH.Value</Value>
+            <rd:UserDefined>true</rd:UserDefined>
+          </QueryParameter>
+          <QueryParameter Name="@ZNE_CODE">
+            <Value>=Parameters!ZNE_CODE.Value</Value>
+            <rd:UserDefined>true</rd:UserDefined>
+          </QueryParameter>
+          <QueryParameter Name="@StartDate">
+            <Value>=Parameters!STARTDATE.Value</Value>
+            <rd:UserDefined>true</rd:UserDefined>
+          </QueryParameter>
+          <QueryParameter Name="@EndDate">
+            <Value>=Parameters!ENDDATE.Value</Value>
+            <rd:UserDefined>true</rd:UserDefined>
+          </QueryParameter>
+        </QueryParameters>
+        <CommandText>--Ver20190919HSDOh
+-- 20200330:SRQ01531058 [IQOSChannel],[KAChain] 추가, AnswerValue != '' 항목 추가
+--				MD Tree에서 IQOSCHANNEL = KA 만 조회
+-- 20200827:SRQ01930202 답변항목 2020년8월 부터 변경.
+-- 20211125:SRQ03242449 답변항목, KACOMP12  / 12.시트지 미부착 소매점 - 광고 시설물 철거
+-- 20220627:SRQ03864263 답변항목, KACOMPEC4 훼손 / 앤드캡=&gt;카드리더기, 카운터캡=&gt;사이드 포스캡
+-- 20221012:SRQ04170547 5x MD 지점 예외 처리.
+
+--//개발 참조용
+--DECLARE @USERAUTH VARCHAR(20), @ZNE_CODE VARCHAR(20), @PRODUCTTYPE VARCHAR(20), @CUSTOMERTYPECODE VARCHAR(20),  @OLT_CODE VARCHAR(20), @StartDate DATE,  @EndDate DATE
+--SELECT @USERAUTH='51-ALL', @ZNE_CODE='5101-ALL', @PRODUCTTYPE='PPOSM', @CUSTOMERTYPECODE='00',  @OLT_CODE=''
+--SELECT @StartDate = '2022-10-01', @EndDate = '2022-10-29'
+--
+SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED 
+
+DECLARE @BRCODE VARCHAR(2)
+DECLARE @ZNCODE VARCHAR(4)
+
+SET @BRCODE = LEFT(@USERAUTH, 2)
+SET @ZNCODE = LEFT(@ZNE_CODE, 4)
+
+IF(@USERAUTH = 'ALL')
+BEGIN
+	SET @BRCODE  = ''
+END
+IF(@ZNCODE = '0000' OR @ZNCODE = 'ALL' OR  @USERAUTH = 'ALL')
+BEGIN
+	SET @ZNCODE  = ''
+END
+
+IF (convert(time, dbo.getlocaldatetime()) not between '08:00:00' and '18:00:00')
+BEGIN
+	SELECT ''[소매점코드],''[소매점명],''[MD지점코드],''[MD존코드],''[SR존코드],''[IQOSChannel],''[KAChain],''[점검일자],''[CD],''[CTU],''[카드리더기],''[포스캡],''[사이드 포스캡],''[댕글러],''[UCU],''[POS VISUAL],''[컬럼 계약 수량],''[라이센스],''[시트지미부착]
+
+	RETURN
+END
+
+
+--//=====================================================================================
+--//Sales Tree
+--//=====================================================================================
+IF (LEFT(@BRCODE,1) IN('1','2','4','7') OR @BRCODE = '50')
+BEGIN
+SELECT
+	  CustomerCode											AS 소매점코드
+	, CustomerName											AS 소매점명
+	, LEFT(ISNULL(MDZONE,''),2)								AS MD지점코드
+	, ISNULL(MDZONE,'')										AS MD존코드
+	, ISNULL(SRZONE,'')										AS SR존코드
+	, RTRIM(IQOSChannel.EntityListAttributeValueDescription)	AS IQOSChannel
+	, RTRIM(KACHAIN.EntityListAttributeValueDescription)	AS KAChain
+	, CONVERT(DATE, JourneyPlannedStartDateTime)			AS 점검일자
+	, [CD], [CTU], [카드리더기], [포스캡], [사이드 포스캡], [댕글러], [UCU], [POS VISUAL], [컬럼 계약 수량], [라이센스], [시트지미부착]
+	FROM (
+	SELECT
+		JourneyPlannedStartDateTime, Visit_CustomerId
+		,SRZONE, MDZONE
+		, MAX(ISNULL(KACOMP1,''))	AS [CD]
+		, MAX(ISNULL(KACOMP2,''))	AS [CTU]
+		, MAX(ISNULL(KACOMP3,''))	AS [카드리더기]
+		, MAX(ISNULL(KACOMP4,''))	AS [포스캡]
+		, MAX(ISNULL(KACOMP5,''))	AS [사이드 포스캡]
+		, MAX(ISNULL(KACOMP6,''))	AS [댕글러]
+		, MAX(ISNULL(KACOMP61,''))	AS [POS VISUAL]		--//20200330
+		, MAX(ISNULL(KACOMP7,''))	AS [UCU]
+		, MAX(ISNULL(KACOMP20,''))	AS [컬럼 계약 수량]
+		, MAX(ISNULL(KACOMP9,''))	AS [라이센스]
+		, MAX(ISNULL(KACOMP12,''))	AS [시트지미부착]
+--		, MAX(ISNULL(KACOMP22,''))	AS [시설물 위치조정 합의서]
+
+	FROM (
+		SELECT
+			JourneyPlannedStartDateTime, Visit_CustomerId
+			, QuestionCode
+			, AnswerValue
+			, AttriCodeName
+			, CASE WHEN QuestionCode = 'KACOMP20' THEN AnswerValue ELSE '' END KACOMP20	--컬럼 계약 수량
+			, SRZONE, MDZONE
+		FROM (
+			SELECT
+				  JourneyPlannedStartDateTime, Visit_CustomerId
+				--, CallCardCode, CallCardDescription
+				--, SubjectCode, SubjectDescription
+				--, QuestionCode, QuestionDescription
+	--			, QuestionCode
+				, AnswerValue
+				, AttriCodeName
+
+				, SalesGeoTree.GeoTreeAreaCode	AS SRZONE
+				, MerchGeoTree.GeoTreeAreaCode	AS MDZONE
+				, Answer_QuestionId
+			FROM Answer
+				JOIN VisitActivity		ON Answer_VisitActivityId = VisitActivityId
+				JOIN Visit				ON VisitActivity_VisitId = VisitId
+				JOIN Journey			ON Visit_JourneyId = JourneyId
+				--LEFT JOIN Position f	ON Journey_PositionId = PositionId
+				--JOIN Customer			ON Visit_CustomerId = CustomerId
+				--LEFT JOIN SalesGeoTree		ON Visit_CustomerId = SalesGeoTree.CustomerGeoTreeArea_CustomerId
+				--LEFT JOIN MerchGeoTree		ON Visit_CustomerId = MerchGeoTree.CustomerGeoTreeArea_CustomerId
+				LEFT JOIN	--//Sales Tree
+					(
+					SELECT CustomerGeoTreeArea_CustomerId, MIN(GeoTreeAreaCode)	GeoTreeAreaCode		--, CustomerGeoTreeAreaModDate 
+					FROM CustomerGeoTreeArea
+						JOIN GeoTree			WITH(NOLOCK) ON CustomerGeoTreeArea_GeoTreeId = GeoTreeId AND GeoTreeCode = 'SALESGEOTREE'
+						JOIN GeoTreeArea		WITH(NOLOCK) ON CustomerGeoTreeArea_GeoTreeAreaId = GeoTreeAreaId
+					GROUP BY CustomerGeoTreeArea_CustomerId
+					) SalesGeoTree		ON Visit_CustomerId = SalesGeoTree.CustomerGeoTreeArea_CustomerId
+				LEFT JOIN	--//MD Tree 
+					(
+					SELECT CustomerGeoTreeArea_CustomerId, MIN(GeoTreeAreaCode)	GeoTreeAreaCode		--, CustomerGeoTreeAreaModDate 
+					FROM CustomerGeoTreeArea
+						JOIN GeoTree			WITH(NOLOCK) ON CustomerGeoTreeArea_GeoTreeId = GeoTreeId AND GeoTreeCode = 'MERCHGEOTREE'
+						JOIN GeoTreeArea		WITH(NOLOCK) ON CustomerGeoTreeArea_GeoTreeAreaId = GeoTreeAreaId
+					GROUP BY CustomerGeoTreeArea_CustomerId
+					) MerchGeoTree		ON Visit_CustomerId = MerchGeoTree.CustomerGeoTreeArea_CustomerId
+
+
+				LEFT JOIN (--//답변항목
+								 SELECT 'KACOMP1' AttriCode,	N'환경불가' AttriCodeName
+						 UNION ALL SELECT 'KACOMP2',			N'POSM 고장'
+						 UNION ALL SELECT 'KACOMP3',			N'POSM 재고부족' 
+						 UNION ALL SELECT 'KACOMP4',			N'위치조정합의서'		--//20200330
+						 UNION ALL SELECT 'UCUCOMP1',			N'환경불가'
+						 UNION ALL SELECT 'UCUCOMP2',			N'미지급'
+						 UNION ALL SELECT 'KACOMPEXTRA1',		N'휴업'
+						 UNION ALL SELECT 'KACOMPEXTRA2',		N'폐업' 
+						 UNION ALL SELECT 'KACOMPEXTRA3',		N'양수도'
+						 UNION ALL SELECT 'KACOMPEXTRA4',		N'법인전환B/W'  
+						 UNION ALL SELECT 'KACOMP22',			N'합의'  
+						 --UNION ALL SELECT 'KACOMP20',			N'컬럼 계약 수량'  
+						 UNION ALL SELECT 'POSVISUALCO1',		N'환경불가'  		--//20200330
+						 --//20200827
+						 UNION ALL SELECT 'KACOMPCDCT',			N'환경불가'
+						 UNION ALL SELECT 'KACOMPCDCT2',		N'POSM재고부족'
+						 UNION ALL SELECT 'KACOMPCDCT3',		N'자가AS처리'
+						 UNION ALL SELECT 'KACOMPCDCT4',		N'업체AS요청'
+						 UNION ALL SELECT 'KACOMPCDCT5',		N'위치조정합의서'
+						 UNION ALL SELECT 'KACOMPEC1',			N'환경불가'
+						 UNION ALL SELECT 'KACOMPEC2',			N'POSM재고부족'
+						 UNION ALL SELECT 'KACOMPEC3',			N'위치조정합의서'
+						 UNION ALL SELECT 'KACOMPEC4',			N'훼손'			--//20220627
+						 UNION ALL SELECT 'KACOMPPD1',			N'환경불가'
+						 UNION ALL SELECT 'KACOMPPD2',			N'POSM재고부족'
+						 UNION ALL SELECT 'KACOMPPD3',			N'훼손'
+						 UNION ALL SELECT 'KACOMPPD4',			N'위치조정합의서'
+						--//20211125
+						 UNION ALL SELECT 'KACOMSHEET1',		N'점주거부'
+						 UNION ALL SELECT 'KACOMSHEET2',		N'환경불가'
+						 ) ATTRI			ON AnswerValue = ATTRI.AttriCode
+
+			WHERE CAST(JourneyPlannedStartDateTime as Date) BETWEEN @StartDate AND @EndDate
+				AND JourneyStatus = 'E'
+				--AND AnswerValue != ''
+				--AND AttriCodeName IS NULL
+				--AND CustomerCode = '9045935'
+				AND 	--Company/지점
+					SalesGeoTree.GeoTreeAreaCode LIKE @BRCODE +'%'
+				AND		--존코드
+					SalesGeoTree.GeoTreeAreaCode LIKE @ZNCODE +'%'
+
+			) A
+			--//성능 향상을 위해 Answer에서 필터링 후 CallCard 필터링  1:30 ==&gt; 0:15
+			JOIN CallCardMatrix		ON Answer_QuestionId = CallCardMatrix_QuestionId
+			JOIN CallCard			ON CallCardMatrix_CallCardId = CallCardId
+			JOIN Question			ON Answer_QuestionId = QuestionId
+			--JOIN Subject			ON Answer_SubjectId = SubjectId
+		WHERE CallCardCode = 'KACOMPLIANCE'	--//CVS Compliance 예외 승인
+		) PV_A
+		PIVOT
+		(	
+			MAX(AttriCodeName)
+			FOR QuestionCode IN  (KACOMP1, KACOMP2 ,KACOMP3 ,KACOMP4, KACOMP5, KACOMP6, KACOMP7, KACOMP9, KACOMP22, KACOMP61, KACOMP12) --KACOMP20
+		)PV_B
+	GROUP BY JourneyPlannedStartDateTime, Visit_CustomerId
+		, SRZONE, MDZONE
+	) D
+	JOIN Customer			ON Visit_CustomerId = CustomerId
+	LEFT JOIN	--//KACHAIN
+		(
+		SELECT CustomerEntityListAttribute_CustomerId, EntityAttributeDescription, EntityListAttributeValueCode, EntityListAttributeValueDescription
+		FROM CustomerEntityListAttribute
+			JOIN EntityAttribute			WITH(NOLOCK) ON EntityAttributeId = CustomerEntityListAttribute_EntityAttributeId AND EntityAttributeCode='KACHAIN'
+			JOIN EntityListAttributeValue	WITH(NOLOCK) ON EntityListAttributeValueId = CustomerEntityListAttribute_EntityListAttributeValueId
+		) KACHAIN					ON KACHAIN.CustomerEntityListAttribute_CustomerId = CustomerId
+	JOIN	--//IQOSCHANNEL
+		(
+		SELECT CustomerEntityListAttribute_CustomerId, EntityAttributeDescription, EntityListAttributeValueCode, EntityListAttributeValueDescription
+		FROM CustomerEntityListAttribute
+			JOIN EntityAttribute			WITH(NOLOCK) ON EntityAttributeId = CustomerEntityListAttribute_EntityAttributeId AND EntityAttributeCode='IQOSCHANNEL'
+			JOIN EntityListAttributeValue	WITH(NOLOCK) ON EntityListAttributeValueId = CustomerEntityListAttribute_EntityListAttributeValueId
+		WHERE EntityListAttributeValueCode = 'KA'	--//KA 소매점만 조회
+		) IQOSCHANNEL				ON IQOSCHANNEL.CustomerEntityListAttribute_CustomerId = CustomerId
+ORDER BY SRZONE, MDZONE, CustomerCode, JourneyPlannedStartDateTime
+
+
+END
+--//=====================================================================================
+--//MD Tree
+--//=====================================================================================
+ELSE
+BEGIN
+SELECT
+	  CustomerCode											AS 소매점코드
+	, CustomerName											AS 소매점명
+	, LEFT(ISNULL(MDZONE,''),2)								AS MD지점코드
+	, ISNULL(MDZONE,'')										AS MD존코드
+	, ISNULL(SRZONE,'')										AS SR존코드
+	, RTRIM(IQOSChannel.EntityListAttributeValueDescription)	AS IQOSChannel
+	, RTRIM(KACHAIN.EntityListAttributeValueDescription)	AS KAChain
+	, CONVERT(DATE, JourneyPlannedStartDateTime)			AS 점검일자
+	, [CD], [CTU], [카드리더기], [포스캡], [사이드 포스캡], [댕글러], [UCU], [POS VISUAL], [컬럼 계약 수량], [라이센스], [시트지미부착]
+FROM (
+	SELECT
+		JourneyPlannedStartDateTime, Visit_CustomerId
+		,SRZONE, MDZONE
+		, MAX(ISNULL(KACOMP1,''))	AS [CD]
+		, MAX(ISNULL(KACOMP2,''))	AS [CTU]
+		, MAX(ISNULL(KACOMP3,''))	AS [카드리더기]
+		, MAX(ISNULL(KACOMP4,''))	AS [포스캡]
+		, MAX(ISNULL(KACOMP5,''))	AS [사이드 포스캡]
+		, MAX(ISNULL(KACOMP6,''))	AS [댕글러]
+		, MAX(ISNULL(KACOMP61,''))	AS [POS VISUAL]		--//20200330
+		, MAX(ISNULL(KACOMP7,''))	AS [UCU]
+		, MAX(ISNULL(KACOMP20,''))	AS [컬럼 계약 수량]
+		, MAX(ISNULL(KACOMP9,''))	AS [라이센스]
+		, MAX(ISNULL(KACOMP12,''))	AS [시트지미부착]
+		--, MAX(ISNULL(KACOMP22,''))	AS [시설물 위치조정 합의서]
+
+	FROM (
+		SELECT
+			JourneyPlannedStartDateTime, Visit_CustomerId
+			, QuestionCode
+			, AnswerValue
+			, AttriCodeName
+			, CASE WHEN QuestionCode = 'KACOMP20' THEN AnswerValue ELSE '' END KACOMP20	--컬럼 계약 수량
+			, SRZONE, MDZONE
+		FROM (
+			SELECT
+				  JourneyPlannedStartDateTime, Visit_CustomerId
+				--, CallCardCode, CallCardDescription
+				--, SubjectCode, SubjectDescription
+				--, QuestionCode, QuestionDescription
+	--			, QuestionCode
+				, AnswerValue
+				, AttriCodeName
+
+				, SalesGeoTree.GeoTreeAreaCode	AS SRZONE
+				, MerchGeoTree.GeoTreeAreaCode	AS MDZONE
+				, Answer_QuestionId
+			FROM Answer
+				JOIN VisitActivity		ON Answer_VisitActivityId = VisitActivityId
+				JOIN Visit				ON VisitActivity_VisitId = VisitId
+				JOIN Journey			ON Visit_JourneyId = JourneyId
+				--LEFT JOIN Position f	ON Journey_PositionId = PositionId
+				--JOIN Customer			ON Visit_CustomerId = CustomerId
+				--LEFT JOIN SalesGeoTree		ON Visit_CustomerId = SalesGeoTree.CustomerGeoTreeArea_CustomerId
+				--LEFT JOIN MerchGeoTree		ON Visit_CustomerId = MerchGeoTree.CustomerGeoTreeArea_CustomerId
+				LEFT JOIN	--//Sales Tree
+					(
+					SELECT CustomerGeoTreeArea_CustomerId, MIN(GeoTreeAreaCode)	GeoTreeAreaCode		--, CustomerGeoTreeAreaModDate 
+					FROM CustomerGeoTreeArea
+						JOIN GeoTree			WITH(NOLOCK) ON CustomerGeoTreeArea_GeoTreeId = GeoTreeId AND GeoTreeCode = 'SALESGEOTREE'
+						JOIN GeoTreeArea		WITH(NOLOCK) ON CustomerGeoTreeArea_GeoTreeAreaId = GeoTreeAreaId
+					GROUP BY CustomerGeoTreeArea_CustomerId
+					) SalesGeoTree		ON Visit_CustomerId = SalesGeoTree.CustomerGeoTreeArea_CustomerId
+				LEFT JOIN	--//MD Tree 
+					(
+					SELECT CustomerGeoTreeArea_CustomerId, MIN(GeoTreeAreaCode)	GeoTreeAreaCode		--, CustomerGeoTreeAreaModDate 
+					FROM CustomerGeoTreeArea
+						JOIN GeoTree			WITH(NOLOCK) ON CustomerGeoTreeArea_GeoTreeId = GeoTreeId AND GeoTreeCode = 'MERCHGEOTREE'
+						JOIN GeoTreeArea		WITH(NOLOCK) ON CustomerGeoTreeArea_GeoTreeAreaId = GeoTreeAreaId
+					GROUP BY CustomerGeoTreeArea_CustomerId
+					) MerchGeoTree		ON Visit_CustomerId = MerchGeoTree.CustomerGeoTreeArea_CustomerId
+
+
+				LEFT JOIN (--//답변항목
+								 SELECT 'KACOMP1' AttriCode,	N'환경불가' AttriCodeName
+						 UNION ALL SELECT 'KACOMP2',			N'POSM 고장'
+						 UNION ALL SELECT 'KACOMP3',			N'POSM 재고부족' 
+						 UNION ALL SELECT 'KACOMP4',			N'위치조정합의서'		--//20200330
+						 UNION ALL SELECT 'UCUCOMP1',			N'환경불가'
+						 UNION ALL SELECT 'UCUCOMP2',			N'미지급'
+						 UNION ALL SELECT 'KACOMPEXTRA1',		N'휴업'
+						 UNION ALL SELECT 'KACOMPEXTRA2',		N'폐업' 
+						 UNION ALL SELECT 'KACOMPEXTRA3',		N'양수도'
+						 UNION ALL SELECT 'KACOMPEXTRA4',		N'법인전환B/W'  
+						 UNION ALL SELECT 'KACOMP22',			N'합의'  
+						 --UNION ALL SELECT 'KACOMP20',			N'컬럼 계약 수량'  
+						 UNION ALL SELECT 'POSVISUALCO1',		N'환경불가'  		--//20200330
+						 --//20200827
+						 UNION ALL SELECT 'KACOMPCDCT',			N'환경불가'
+						 UNION ALL SELECT 'KACOMPCDCT2',		N'POSM재고부족'
+						 UNION ALL SELECT 'KACOMPCDCT3',		N'자가AS처리'
+						 UNION ALL SELECT 'KACOMPCDCT4',		N'업체AS요청'
+						 UNION ALL SELECT 'KACOMPCDCT5',		N'위치조정합의서'
+						 UNION ALL SELECT 'KACOMPEC1',			N'환경불가'
+						 UNION ALL SELECT 'KACOMPEC2',			N'POSM재고부족'
+						 UNION ALL SELECT 'KACOMPEC3',			N'위치조정합의서'
+						 UNION ALL SELECT 'KACOMPEC4',			N'훼손'			--//20220627
+						 UNION ALL SELECT 'KACOMPPD1',			N'환경불가'
+						 UNION ALL SELECT 'KACOMPPD2',			N'POSM재고부족'
+						 UNION ALL SELECT 'KACOMPPD3',			N'훼손'
+						 UNION ALL SELECT 'KACOMPPD4',			N'위치조정합의서'
+						--//20211125
+						 UNION ALL SELECT 'KACOMSHEET1',		N'점주거부'
+						 UNION ALL SELECT 'KACOMSHEET2',		N'환경불가'
+						) ATTRI			ON AnswerValue = ATTRI.AttriCode
+
+			WHERE CAST(JourneyPlannedStartDateTime as Date) BETWEEN @StartDate AND @EndDate
+				AND JourneyStatus = 'E'
+				--AND AnswerValue != ''
+				--AND AttriCodeName IS NULL
+				--AND CustomerCode = '3012702'
+				--AND Visit_CustomerId = '48C2BE55-F232-4EF3-975E-DB137675BB42'
+				AND 	--Company/지점
+					MerchGeoTree.GeoTreeAreaCode LIKE @BRCODE +'%'
+				AND		--존코드
+					MerchGeoTree.GeoTreeAreaCode LIKE @ZNCODE +'%'
+
+			) A
+			--//성능 향상을 위해 Answer에서 필터링 후 CallCard 필터링  1:30 ==&gt; 0:15
+			JOIN CallCardMatrix		ON Answer_QuestionId = CallCardMatrix_QuestionId
+			JOIN CallCard			ON CallCardMatrix_CallCardId = CallCardId
+			JOIN Question			ON Answer_QuestionId = QuestionId
+			--JOIN Subject			ON Answer_SubjectId = SubjectId
+		WHERE CallCardCode = 'KACOMPLIANCE'	--//CVS Compliance 예외 승인
+		) PV_A
+		PIVOT
+		(	
+			MAX(AttriCodeName)
+			FOR QuestionCode IN  (KACOMP1, KACOMP2 ,KACOMP3 ,KACOMP4, KACOMP5, KACOMP6, KACOMP7, KACOMP9, KACOMP22, KACOMP61, KACOMP12) --KACOMP20
+		)PV_B
+	GROUP BY JourneyPlannedStartDateTime, Visit_CustomerId
+		, SRZONE, MDZONE
+	) D
+	JOIN Customer			ON Visit_CustomerId = CustomerId
+	LEFT JOIN	--//KACHAIN
+		(
+		SELECT CustomerEntityListAttribute_CustomerId, EntityAttributeDescription, EntityListAttributeValueCode, EntityListAttributeValueDescription
+		FROM CustomerEntityListAttribute
+			JOIN EntityAttribute			WITH(NOLOCK) ON EntityAttributeId = CustomerEntityListAttribute_EntityAttributeId AND EntityAttributeCode='KACHAIN'
+			JOIN EntityListAttributeValue	WITH(NOLOCK) ON EntityListAttributeValueId = CustomerEntityListAttribute_EntityListAttributeValueId
+		) KACHAIN					ON KACHAIN.CustomerEntityListAttribute_CustomerId = CustomerId
+	JOIN --//IQOSCHANNEL
+		(
+		SELECT CustomerEntityListAttribute_CustomerId, EntityAttributeDescription, EntityListAttributeValueCode, EntityListAttributeValueDescription
+		FROM CustomerEntityListAttribute
+			JOIN EntityAttribute			WITH(NOLOCK) ON EntityAttributeId = CustomerEntityListAttribute_EntityAttributeId AND EntityAttributeCode='IQOSCHANNEL'
+			JOIN EntityListAttributeValue	WITH(NOLOCK) ON EntityListAttributeValueId = CustomerEntityListAttribute_EntityListAttributeValueId
+		WHERE EntityListAttributeValueCode = 'KA'	--//KA 소매점만 조회
+		) IQOSCHANNEL				ON IQOSCHANNEL.CustomerEntityListAttribute_CustomerId = CustomerId
+ORDER BY MDZONE, SRZONE, CustomerCode, JourneyPlannedStartDateTime
+
+END
+
+/*
+SELECT  CallCardCode, CallCardDescription
+	, CallCardMatrix_QuestionId, CallCardMatrixQuestionSequence
+	, QuestionCode, QuestionDescription
+FROM	CallcardMatrix 
+	JOIN Callcard		ON CallCardMatrix_CallCardId = CallCardId
+	JOIN Question		ON CallCardMatrix_QuestionId = QuestionId 
+WHERE CallCardCode = 'KACOMPLIANCE'
+ORDER BY CallCardMatrixQuestionSequence
+
+SELECT22
+FROM 
+	JOIN CallCardMatrix		ON Answer_QuestionId = CallCardMatrix_QuestionId
+	JOIN CallCard			ON CallCardMatrix_CallCardId = CallCardId
+	JOIN Question			ON Answer_QuestionId = QuestionId
+	--JOIN Subject			ON Answer_SubjectId = SubjectId
+WHERE CallCardCode = 'KACOMPLIANCE'	--//CVS Compliance 예외 승인
+
+SELECT TOP 100 * FROM CallCardMatrix
+SELECT TOP 100 * FROM CallCard
+SELECT TOP 100 * FROM Question
+WHERE QuestionCode = 'KACOMP4'
+
+
+*/</CommandText>
+        <rd:UseGenericDesigner>true</rd:UseGenericDesigner>
+      </Query>
+      <Fields>
+        <Field Name="소매점코드">
+          <DataField>소매점코드</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="소매점명">
+          <DataField>소매점명</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="MD지점코드">
+          <DataField>MD지점코드</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="MD존코드">
+          <DataField>MD존코드</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="SR존코드">
+          <DataField>SR존코드</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="IQOSChannel">
+          <DataField>IQOSChannel</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="점검일자">
+          <DataField>점검일자</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="CD">
+          <DataField>CD</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="KAChain">
+          <DataField>KAChain</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="CTU">
+          <DataField>CTU</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="카드리더기">
+          <DataField>카드리더기</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="포스캡">
+          <DataField>포스캡</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="사이드_포스캡">
+          <DataField>사이드 포스캡</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="댕글러">
+          <DataField>댕글러</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="UCU">
+          <DataField>UCU</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="컬럼_계약_수량">
+          <DataField>컬럼 계약 수량</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="라이센스">
+          <DataField>라이센스</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="POS_VISUAL">
+          <DataField>POS VISUAL</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="시트지미부착">
+          <DataField>시트지미부착</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+  </DataSets>
+  <ReportSections>
+    <ReportSection>
+      <Body>
+        <ReportItems>
+          <Tablix Name="Tablix1">
+            <TablixBody>
+              <TablixColumns>
+                <TablixColumn>
+                  <Width>0.85in</Width>
+                </TablixColumn>
+                <TablixColumn>
+                  <Width>2.09167in</Width>
+                </TablixColumn>
+                <TablixColumn>
+                  <Width>1in</Width>
+                </TablixColumn>
+                <TablixColumn>
+                  <Width>1in</Width>
+                </TablixColumn>
+                <TablixColumn>
+                  <Width>1in</Width>
+                </TablixColumn>
+                <TablixColumn>
+                  <Width>0.75in</Width>
+                </TablixColumn>
+                <TablixColumn>
+                  <Width>1.55in</Width>
+                </TablixColumn>
+                <TablixColumn>
+                  <Width>1in</Width>
+                </TablixColumn>
+                <TablixColumn>
+                  <Width>1.25in</Width>
+                </TablixColumn>
+                <TablixColumn>
+                  <Width>1.25in</Width>
+                </TablixColumn>
+                <TablixColumn>
+                  <Width>1.25in</Width>
+                </TablixColumn>
+                <TablixColumn>
+                  <Width>1.25in</Width>
+                </TablixColumn>
+                <TablixColumn>
+                  <Width>1.25in</Width>
+                </TablixColumn>
+                <TablixColumn>
+                  <Width>1.25in</Width>
+                </TablixColumn>
+                <TablixColumn>
+                  <Width>1.25in</Width>
+                </TablixColumn>
+                <TablixColumn>
+                  <Width>1.25in</Width>
+                </TablixColumn>
+                <TablixColumn>
+                  <Width>1.25in</Width>
+                </TablixColumn>
+                <TablixColumn>
+                  <Width>1in</Width>
+                </TablixColumn>
+                <TablixColumn>
+                  <Width>1.2in</Width>
+                </TablixColumn>
+              </TablixColumns>
+              <TablixRows>
+                <TablixRow>
+                  <Height>0.25in</Height>
+                  <TablixCells>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox1">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>소매점코드</Value>
+                                  <Style>
+                                    <FontFamily>Tahoma</FontFamily>
+                                    <FontSize>11pt</FontSize>
+                                    <FontWeight>Bold</FontWeight>
+                                    <Color>White</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox1</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>#7292cc</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <BackgroundColor>#4c68a2</BackgroundColor>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox3">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>소매점명</Value>
+                                  <Style>
+                                    <FontFamily>Tahoma</FontFamily>
+                                    <FontSize>11pt</FontSize>
+                                    <FontWeight>Bold</FontWeight>
+                                    <Color>White</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox3</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>#7292cc</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <BackgroundColor>#4c68a2</BackgroundColor>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox5">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>MD지점</Value>
+                                  <Style>
+                                    <FontFamily>Tahoma</FontFamily>
+                                    <FontSize>11pt</FontSize>
+                                    <FontWeight>Bold</FontWeight>
+                                    <Color>White</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox5</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>#7292cc</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <BackgroundColor>#4c68a2</BackgroundColor>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox7">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>MD존코드</Value>
+                                  <Style>
+                                    <FontFamily>Tahoma</FontFamily>
+                                    <FontSize>11pt</FontSize>
+                                    <FontWeight>Bold</FontWeight>
+                                    <Color>White</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox7</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>#7292cc</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <BackgroundColor>#4c68a2</BackgroundColor>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox33">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>SR존코드</Value>
+                                  <Style>
+                                    <FontFamily>Tahoma</FontFamily>
+                                    <FontSize>11pt</FontSize>
+                                    <FontWeight>Bold</FontWeight>
+                                    <Color>White</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox33</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>#7292cc</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <BackgroundColor>#4c68a2</BackgroundColor>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox6">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>IQOS　Channel</Value>
+                                  <Style>
+                                    <FontFamily>Tahoma</FontFamily>
+                                    <FontSize>11pt</FontSize>
+                                    <FontWeight>Bold</FontWeight>
+                                    <Color>White</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox6</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>#7292cc</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <BackgroundColor>#4c68a2</BackgroundColor>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox2">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value EvaluationMode="Constant">체인정보</Value>
+                                  <Style>
+                                    <FontFamily>Tahoma</FontFamily>
+                                    <FontSize>11pt</FontSize>
+                                    <FontWeight>Bold</FontWeight>
+                                    <Color>White</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox2</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>#7292cc</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <BackgroundColor>#4c68a2</BackgroundColor>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox35">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>점검일자</Value>
+                                  <Style>
+                                    <FontFamily>Tahoma</FontFamily>
+                                    <FontSize>11pt</FontSize>
+                                    <FontWeight>Bold</FontWeight>
+                                    <Color>White</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox35</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>#7292cc</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <BackgroundColor>#4c68a2</BackgroundColor>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox37">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>CD</Value>
+                                  <Style>
+                                    <FontFamily>Tahoma</FontFamily>
+                                    <FontSize>11pt</FontSize>
+                                    <FontWeight>Bold</FontWeight>
+                                    <Color>White</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox37</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>#7292cc</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <BackgroundColor>#4c68a2</BackgroundColor>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox39">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>CTU</Value>
+                                  <Style>
+                                    <FontFamily>Tahoma</FontFamily>
+                                    <FontSize>11pt</FontSize>
+                                    <FontWeight>Bold</FontWeight>
+                                    <Color>White</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox39</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>#7292cc</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <BackgroundColor>#4c68a2</BackgroundColor>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox41">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value EvaluationMode="Constant">카드리더기</Value>
+                                  <Style>
+                                    <FontFamily>Tahoma</FontFamily>
+                                    <FontSize>11pt</FontSize>
+                                    <FontWeight>Bold</FontWeight>
+                                    <Color>White</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox41</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>#7292cc</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <BackgroundColor>#4c68a2</BackgroundColor>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox43">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>포스캡</Value>
+                                  <Style>
+                                    <FontFamily>Tahoma</FontFamily>
+                                    <FontSize>11pt</FontSize>
+                                    <FontWeight>Bold</FontWeight>
+                                    <Color>White</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox43</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>#7292cc</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <BackgroundColor>#4c68a2</BackgroundColor>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox45">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value EvaluationMode="Constant">사이드 포스캡</Value>
+                                  <Style>
+                                    <FontFamily>Tahoma</FontFamily>
+                                    <FontSize>11pt</FontSize>
+                                    <FontWeight>Bold</FontWeight>
+                                    <Color>White</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox45</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>#7292cc</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <BackgroundColor>#4c68a2</BackgroundColor>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox47">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>댕글러</Value>
+                                  <Style>
+                                    <FontFamily>Tahoma</FontFamily>
+                                    <FontSize>11pt</FontSize>
+                                    <FontWeight>Bold</FontWeight>
+                                    <Color>White</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox47</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>#7292cc</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <BackgroundColor>#4c68a2</BackgroundColor>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox9">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>포스비주얼</Value>
+                                  <Style>
+                                    <FontFamily>Tahoma</FontFamily>
+                                    <FontSize>11pt</FontSize>
+                                    <FontWeight>Bold</FontWeight>
+                                    <Color>White</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox9</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>#7292cc</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <BackgroundColor>#4c68a2</BackgroundColor>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox49">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>UCU</Value>
+                                  <Style>
+                                    <FontFamily>Tahoma</FontFamily>
+                                    <FontSize>11pt</FontSize>
+                                    <FontWeight>Bold</FontWeight>
+                                    <Color>White</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox49</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>#7292cc</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <BackgroundColor>#4c68a2</BackgroundColor>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox51">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>컬럼 계약 수량</Value>
+                                  <Style>
+                                    <FontFamily>Tahoma</FontFamily>
+                                    <FontSize>11pt</FontSize>
+                                    <FontWeight>Bold</FontWeight>
+                                    <Color>White</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox51</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>#7292cc</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <BackgroundColor>#4c68a2</BackgroundColor>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox53">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>라이센스</Value>
+                                  <Style>
+                                    <FontFamily>Tahoma</FontFamily>
+                                    <FontSize>11pt</FontSize>
+                                    <FontWeight>Bold</FontWeight>
+                                    <Color>White</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox53</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>#7292cc</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <BackgroundColor>#4c68a2</BackgroundColor>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox4">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>시트지미부착</Value>
+                                  <Style>
+                                    <FontFamily>Tahoma</FontFamily>
+                                    <FontSize>11pt</FontSize>
+                                    <FontWeight>Bold</FontWeight>
+                                    <Color>White</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox4</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>#7292cc</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <BackgroundColor>#4c68a2</BackgroundColor>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                  </TablixCells>
+                </TablixRow>
+                <TablixRow>
+                  <Height>0.25in</Height>
+                  <TablixCells>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="소매점코드">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>=Fields!소매점코드.Value</Value>
+                                  <Style />
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>소매점코드</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>LightGrey</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="소매점명">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>=Fields!소매점명.Value</Value>
+                                  <Style />
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>소매점명</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>LightGrey</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="MD지점코드">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>=Fields!MD지점코드.Value</Value>
+                                  <Style />
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>MD지점코드</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>LightGrey</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="MD존코드">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>=Fields!MD존코드.Value</Value>
+                                  <Style />
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>MD존코드</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>LightGrey</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="SR존코드">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>=Fields!SR존코드.Value</Value>
+                                  <Style />
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>SR존코드</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>LightGrey</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="IQOSChannel">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>=Fields!IQOSChannel.Value</Value>
+                                  <Style />
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>IQOSChannel</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>LightGrey</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="KAChain">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>=Fields!KAChain.Value</Value>
+                                  <Style />
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>KAChain</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>LightGrey</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="점검일자">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>=Fields!점검일자.Value</Value>
+                                  <Style>
+                                    <Format>yyyy-MM-dd</Format>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>점검일자</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>LightGrey</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="CD">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>=Fields!CD.Value</Value>
+                                  <Style />
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>CD</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>LightGrey</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="CTU">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>=Fields!CTU.Value</Value>
+                                  <Style />
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>CTU</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>LightGrey</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="카드리더기">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>=Fields!카드리더기.Value</Value>
+                                  <Style />
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>카드리더기</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>LightGrey</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="포스캡">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>=Fields!포스캡.Value</Value>
+                                  <Style />
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>포스캡</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>LightGrey</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="사이드_포스캡">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>=Fields!사이드_포스캡.Value</Value>
+                                  <Style />
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>사이드_포스캡</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>LightGrey</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="댕글러">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>=Fields!댕글러.Value</Value>
+                                  <Style />
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>댕글러</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>LightGrey</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="POS_VISUAL">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>=Fields!POS_VISUAL.Value</Value>
+                                  <Style />
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>POS_VISUAL</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>LightGrey</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="UCU">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>=Fields!UCU.Value</Value>
+                                  <Style />
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>UCU</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>LightGrey</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="컬럼_계약_수량">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>=Fields!컬럼_계약_수량.Value</Value>
+                                  <Style />
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>컬럼_계약_수량</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>LightGrey</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="라이센스">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>=Fields!라이센스.Value</Value>
+                                  <Style />
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>라이센스</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>LightGrey</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="시트지미부착">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>=Fields!시트지미부착.Value</Value>
+                                  <Style />
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>시트지미부착</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>LightGrey</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                  </TablixCells>
+                </TablixRow>
+              </TablixRows>
+            </TablixBody>
+            <TablixColumnHierarchy>
+              <TablixMembers>
+                <TablixMember />
+                <TablixMember />
+                <TablixMember />
+                <TablixMember />
+                <TablixMember />
+                <TablixMember />
+                <TablixMember />
+                <TablixMember />
+                <TablixMember />
+                <TablixMember />
+                <TablixMember />
+                <TablixMember />
+                <TablixMember />
+                <TablixMember />
+                <TablixMember />
+                <TablixMember />
+                <TablixMember />
+                <TablixMember />
+                <TablixMember />
+              </TablixMembers>
+            </TablixColumnHierarchy>
+            <TablixRowHierarchy>
+              <TablixMembers>
+                <TablixMember>
+                  <KeepWithGroup>After</KeepWithGroup>
+                </TablixMember>
+                <TablixMember>
+                  <Group Name="Details" />
+                </TablixMember>
+              </TablixMembers>
+            </TablixRowHierarchy>
+            <GroupsBeforeRowHeaders>5</GroupsBeforeRowHeaders>
+            <FixedColumnHeaders>true</FixedColumnHeaders>
+            <FixedRowHeaders>true</FixedRowHeaders>
+            <KeepTogether>true</KeepTogether>
+            <DataSetName>CALLCARD</DataSetName>
+            <Height>0.5in</Height>
+            <Width>22.69167in</Width>
+            <Style>
+              <Border>
+                <Style>None</Style>
+              </Border>
+            </Style>
+          </Tablix>
+        </ReportItems>
+        <Height>0.60417in</Height>
+        <Style />
+      </Body>
+      <Width>22.74167in</Width>
+      <Page>
+        <LeftMargin>1in</LeftMargin>
+        <RightMargin>1in</RightMargin>
+        <TopMargin>1in</TopMargin>
+        <BottomMargin>1in</BottomMargin>
+        <Style />
+      </Page>
+    </ReportSection>
+  </ReportSections>
+  <ReportParameters>
+    <ReportParameter Name="useraccount">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>=User!UserID</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>useraccount</Prompt>
+      <Hidden>true</Hidden>
+    </ReportParameter>
+    <ReportParameter Name="USERAUTH">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>ALL</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>지점</Prompt>
+      <ValidValues>
+        <DataSetReference>
+          <DataSetName>USERAUTH</DataSetName>
+          <ValueField>BRCODE</ValueField>
+          <LabelField>BRCODE</LabelField>
+        </DataSetReference>
+      </ValidValues>
+    </ReportParameter>
+    <ReportParameter Name="ZNE_CODE">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>0000</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>존코드</Prompt>
+      <ValidValues>
+        <DataSetReference>
+          <DataSetName>ZNE_CODE</DataSetName>
+          <ValueField>ZNE_CODE</ValueField>
+          <LabelField>ZNE_CODE</LabelField>
+        </DataSetReference>
+      </ValidValues>
+    </ReportParameter>
+    <ReportParameter Name="STARTDATE">
+      <DataType>DateTime</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>=Today()</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>시작일</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="ENDDATE">
+      <DataType>DateTime</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>=Today()</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>종료일</Prompt>
+    </ReportParameter>
+  </ReportParameters>
+  <rd:ReportUnitType>Inch</rd:ReportUnitType>
+  <rd:ReportServerUrl>http://smartrpt.kr.pmi/ReportServer</rd:ReportServerUrl>
+  <rd:ReportID>a4a9abb6-ceb0-42b1-a7fb-2b610c3f997a</rd:ReportID>
+</Report>
