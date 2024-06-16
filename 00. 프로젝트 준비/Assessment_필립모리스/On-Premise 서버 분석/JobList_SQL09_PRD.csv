@@ -1,0 +1,50 @@
+﻿[1. SMART-FS] FS Daily Closing,No description available.,Y,되풀이,매주,"실행주기 : 1 주(s) 매주, 월, 화, 수, 목, 금",매일 한번 23:20:00,2019-10-25 11:38:29.657,2023-02-28 12:11:49.617
+[3. SMART] DAILY CLOSING,Admin : IS CRM Team,Y,되풀이,매주,"실행주기 : 1 주(s) 매주, 화, 수, 목, 금, 토",매일 한번 00:30:00,2019-10-25 11:38:47.950,2022-01-29 21:43:19.670
+[4. SMART-FS] DAILY CLOSING D-1,No description available.,Y,되풀이,매일,실행주기 : 1 일(s),매일 한번 01:00:00,2019-10-25 11:38:55.937,2022-01-29 21:45:47.647
+[5. SMART] ACT_FILE,03:30 to 02:00,Y,되풀이,매주,"실행주기 : 1 주(s) 매주, 화, 수, 목, 금, 토",매일 한번 02:00:00,2019-10-25 11:39:02.500,2022-01-29 21:46:18.800
+[5. SMART] ACT_FILE,03:30 to 02:00,N,한번만,1번,NULL,NULL,2019-10-25 11:39:02.500,2019-10-25 11:39:02.500
+[6. SMART] DAILY Report Job,No description available.,N,한번만,1번,NULL,NULL,2019-10-25 11:39:08.670,2019-10-25 11:39:08.670
+[6. SMART] DAILY Report Job,No description available.,Y,되풀이,매주,"실행주기 : 1 주(s) 매주, 화, 수, 목, 금, 토",매일 한번 03:00:00,2019-10-25 11:39:08.670,2022-01-29 21:46:47.010
+[CF] – LARE -> IMDL Interface,IMDL Interface for Logon Applications,Y,되풀이,매일,실행주기 : 1 일(s),매일 한번 07:00:00,2019-10-14 14:17:02.670,2019-10-14 14:17:02.670
+[CF] – LARE -> IMDL Interface,IMDL Interface for Logon Applications,N,되풀이,매일,실행주기 : 1 일(s),주기적 발생 1 시간(s) 간격 00:00:00 & 23:59:59,2019-10-14 14:17:02.733,2019-10-14 14:17:02.733
+[FS] Delete PDA_xxx Data,Delete PDA_xxx data,Y,되풀이,매주,"실행주기 : 1 주(s) 매주, 월, 화, 수, 목, 금, 토",매일 한번 02:00:00,2019-10-24 17:12:54.693,2022-12-30 16:16:54.197
+[iSMS] CodeNumberCounter,No description available.,Y,되풀이,매일,실행주기 : 1 일(s),주기적 발생 1 시간(s) 간격 00:00:00 & 23:59:59,2019-10-24 18:04:34.390,2020-05-06 21:56:18.890
+[iSMS] Common Master Syncronization (Day 0),No description available.,Y,되풀이,매주,"실행주기 : 1 주(s) 매주, 월, 화, 수, 목, 금",매일 한번 22:15:00,2019-10-25 12:08:22.430,2023-02-28 12:13:03.937
+[iSMS] Daily Closing FS,No description available.,Y,되풀이,매주,"실행주기 : 1 주(s) 매주, 월, 화, 수, 목, 금",매일 한번 22:30:00,2019-10-24 15:49:02.037,2023-02-28 12:13:15.750
+[iSMS] Daily Closing MD,No description available.,Y,되풀이,매주,"실행주기 : 1 주(s) 매주, 월, 화, 수, 목, 금",매일 한번 22:00:00,2019-10-24 17:03:04.483,2023-02-28 12:13:27.023
+[iSMS] Daily Job Process KSI,"20170315 : HSDoh  before download  --//CR III 20170227 EXEC dbo.CalculateKSIHandling			--//  7:30 EXEC dbo.CalculateSuggestedOrderDataForDownload	--//  2:40 ",Y,되풀이,매주,"실행주기 : 1 주(s) 매주, 월, 화, 수, 목, 금",매일 한번 23:00:00,2019-10-24 17:12:01.950,2022-09-19 22:29:53.580
+[iSMS] Daily Reset Closing Data,- 20210802HSDoh   Change Schedules PM 2:00 ==> PM 1:00,Y,되풀이,매일,실행주기 : 1 일(s),매일 한번 13:00:00,2019-10-24 17:27:41.707,2021-08-02 17:44:29.563
+[iSMS] EPS_Contract_Automation,20230214 Tyler changing from 11:50PM to 11:50AM with manual data transfer. Revert back to PM once automated.,Y,되풀이,매주,"실행주기 : 1 주(s) 매주, 월, 화, 수, 목, 금",매일 한번 11:50:00,2019-10-21 18:29:11.163,2023-02-14 09:08:33.107
+[iSMS] FS CALL PLAN,No description available.,Y,되풀이,매주,"실행주기 : 1 주(s) 매주, 월, 화, 수, 목, 금, 토",매일 한번 05:00:00,2019-10-24 17:57:03.290,2019-10-24 17:57:03.290
+"[iSMS] MONTH 1, CustomerHis Backup",Monthly Close  CustomerHis Backup Month last day run,Y,한번만,1번,NULL,NULL,2020-05-28 14:35:06.373,2023-02-28 12:10:20.863
+[ISMS-SMART] FS CALL PLAN Migration,No description available.,Y,되풀이,매주,"실행주기 : 1 주(s) 매주, 월, 화, 수, 목, 금, 토",매일 한번 10:30:00,2019-10-29 13:40:27.813,2019-10-29 13:40:27.813
+[MD] Daily End,No description available.,Y,되풀이,매주,"실행주기 : 1 주(s) 매주, 월, 화, 수, 목, 금",매일 한번 23:00:00,2019-10-24 17:48:06.510,2019-10-24 17:48:06.510
+[MD] Monthly End,No description available.,Y,되풀이,매월,발생 마지막 일 모든 1 월(s),매일 한번 23:50:00,2019-10-24 17:48:18.543,2019-10-24 17:48:18.543
+[MD] Monthly End - D+1,MD Monthly End,Y,되풀이,매월,발생 첫째 일 모든 1 월(s),매일 한번 07:00:00,2019-10-24 17:48:27.890,2019-10-24 17:48:27.890
+[PMKR-EAMS] Send notification e-mail,Auther : HSDoh Data : 2019-02-20 Notice send mail,Y,되풀이,매주,"실행주기 : 1 주(s) 매주, 월, 화, 수, 목, 금",매일 한번 09:00:00,2019-02-20 16:26:19.153,2019-02-20 16:26:19.153
+[PMKR-ISMSR] ISMSR Copy,20180710HSDoh : ISMSR Copy from ISMS 20190131HSDoh : ISMSR Copy to SQL03,Y,되풀이,매주,"실행주기 : 1 주(s) 매주, 월, 화, 수, 목, 금, 토",매일 한번 06:00:00,2018-07-10 17:10:40.187,2020-01-08 10:25:33.467
+[PMKR-SRS] Daily End,Create date : 2018-11-05,Y,되풀이,매주,"실행주기 : 1 주(s) 매주, 월, 화, 수, 목, 금, 토",매일 한번 05:00:00,2018-11-07 12:21:34.140,2018-11-07 12:21:34.140
+[PMKR-SRS] Daily End,Create date : 2018-11-05,Y,되풀이,매주,실행주기 : 1 주(s) 매주일,매일 한번 01:00:00,2018-11-07 12:21:34.300,2018-11-07 12:21:34.300
+[PRF] Monthly End,[PRF] Close stock of PRF each MD and Oksan Office.,Y,되풀이,매월,발생 마지막 일 모든 1 월(s),매일 한번 23:50:00,2019-10-18 17:00:40.420,2019-10-18 17:00:40.420
+[SMART] COMMONR,No description available.,Y,되풀이,매일,실행주기 : 1 일(s),매일 한번 04:00:00,2019-10-24 17:41:32.213,2019-10-24 17:41:32.213
+[SMART] DAILY Others Job,No description available.,Y,되풀이,매주,"실행주기 : 1 주(s) 매주, 화, 수, 목, 금, 토",매일 한번 12:01:00,2019-10-25 11:39:45.533,2019-10-25 11:39:45.533
+[SMART] MONTH_END,Monthly Close,N,되풀이,매일,실행주기 : 1 일(s),매일 한번 22:00:00,2019-10-25 12:34:18.613,2021-10-29 21:42:03.183
+[SMART] MONTH_END  1/2,Admin : IS CRM Team MONTH END JOB,Y,한번만,1번,NULL,NULL,2019-10-25 12:34:26.363,2023-02-28 12:09:27.380
+[SMART] MONTH_END  2/2,Admin : IS CRM Team MONTH END JOB,N,한번만,1번,NULL,NULL,2019-10-25 12:34:32.800,2019-10-25 12:34:32.800
+[SMART] MONTH_END  3/3 (KSI_OUTLET_M),No description available.,N,한번만,1번,NULL,NULL,2019-10-25 12:34:38.300,2019-10-25 12:34:38.300
+CommandLog Cleanup,Source: https://ola.hallengren.com,N,되풀이,매일,실행주기 : 1 일(s),매일 한번 00:00:00,2019-06-11 03:00:35.250,2019-06-11 03:00:35.250
+Deleted - [2. SMART-MD] DAILY Buget,20090601 22:00 => 22:30으로 변경. 20100409 22:30 => 22:45 20120620 22:45 => 23:00 20130201 22:45 => 22:30  20180430 SMART 업무 종료로 마감 필요 없음.,Y,되풀이,매주,"실행주기 : 1 주(s) 매주, 월, 화, 수, 목, 금, 토",매일 한번 22:30:00,2019-10-25 11:38:37.050,2019-10-25 11:38:37.050
+Deleted - [AMS] User Cleanup,Synchronize MIH user with IMDL employee table.,Y,되풀이,매주,"실행주기 : 1 주(s) 매주, 월, 화, 수, 목, 금, 토",매일 한번 08:30:00,2019-10-18 11:26:09.003,2019-10-18 11:26:09.003
+Deleted - [PMKR] IMDL_EMP,No description available.,Y,되풀이,매주,실행주기 : 1 주(s) 매주일,매일 한번 00:00:00,2019-02-20 17:11:18.573,2019-02-20 17:11:18.573
+Deleted - [SYSTEM] CHECK FS CLOSING AND SEND EMAILS,Check FS closing and send emails to system administrators via email,Y,되풀이,매주,"실행주기 : 1 주(s) 매주, 화, 수, 목, 금, 토",매일 한번 06:00:00,2019-10-25 15:57:10.820,2019-10-25 15:57:10.820
+ISDM - Database IntegrityCheck - SYSTEM DATABASES,Source: https://ola.hallengren.com,Y,되풀이,매주,실행주기 : 1 주(s) 매주일,매일 한번 22:00:00,2019-06-11 03:00:37.173,2019-06-11 03:00:37.173
+ISDM - Database IntegrityCheck - USER DATABASES,Source: https://ola.hallengren.com,Y,되풀이,매주,실행주기 : 1 주(s) 매주일,매일 한번 00:00:00,2019-06-11 03:00:36.690,2019-06-11 03:00:36.690
+ISDM - Index Optimize - USER DATABASES,Source: https://ola.hallengren.com,Y,되풀이,매주,실행주기 : 1 주(s) 매주일,매일 한번 22:00:00,2019-06-11 03:00:37.640,2019-06-11 03:00:37.640
+OpsManager_Right_Assignment,Assign db_owner rights,Y,되풀이,매일,실행주기 : 1 일(s),매일 한번 18:00:00,2018-05-23 19:01:40.953,2018-05-23 19:01:40.953
+Output File Cleanup,Source: https://ola.hallengren.com,N,되풀이,매일,실행주기 : 1 일(s),매일 한번 00:00:00,2019-06-11 03:00:35.737,2019-06-11 03:00:35.737
+PMKMaintenance.DB Backup,No description available.,Y,되풀이,매일,실행주기 : 1 일(s),매일 한번 01:00:00,2019-07-12 11:01:18.867,2019-10-21 18:52:04.207
+PMKMaintenance.DB Backup(SMART),No description available.,Y,되풀이,매주,"실행주기 : 1 주(s) 매주, 화, 수, 목, 금, 토",매일 한번 01:30:00,2019-10-21 18:52:04.300,2019-11-07 10:24:49.127
+PMKMaintenance.Update Statistics(SMART),No description available.,Y,되풀이,매주,"실행주기 : 1 주(s) 매주, 토",매일 한번 03:00:00,2019-10-31 11:13:46.520,2019-10-31 11:13:46.520
+scorsp_Right_Assignment,Assign db_owner rights,Y,되풀이,매일,실행주기 : 1 일(s),매일 한번 18:00:00,2021-01-28 23:13:13.007,2021-01-28 23:13:13.007
+sp_purge_jobhistory,Source: https://ola.hallengren.com,N,되풀이,매일,실행주기 : 1 일(s),매일 한번 00:00:00,2019-06-11 03:00:36.203,2019-06-11 03:00:36.203
+syspolicy_purge_history,No description available.,Y,되풀이,매일,실행주기 : 1 일(s),매일 한번 02:00:00,2018-05-23 17:15:11.660,2018-05-23 17:15:11.660
